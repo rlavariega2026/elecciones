@@ -1,0 +1,1042 @@
+{
+  "projects": [
+    {
+      "id": "proj-jorge-meade-01",
+      "internalName": "Jorge Meade — Diputado Local Morelos",
+      "slug": "jorge-meade",
+      "previousSlugs": [],
+      "status": "publicado",
+      "category": "estatal",
+      "role": "Diputación Local (Congreso Morelos)",
+      "stage": "candidatura",
+      "partyId": "PRI",
+      "coalitionParties": [
+        "PAN",
+        "PRD_MORELOS"
+      ],
+      "designFamily": "legislativa",
+      "variantId": "leg_tribuna_iniciativas",
+      "palette": {
+        "id": "pri_palette",
+        "name": "Verde y Rojo Institucional",
+        "primary": "#009A44",
+        "secondary": "#E4002B",
+        "accent": "#007A34",
+        "background": "#FAFAFA",
+        "surface": "#FFFFFF",
+        "text": "#111827",
+        "textMuted": "#4B5563",
+        "gradient": "linear-gradient(135deg, #009A44 0%, #007A34 50%, #E4002B 100%)"
+      },
+      "typography": {
+        "headingFont": "Montserrat",
+        "bodyFont": "Plus Jakarta Sans",
+        "headingWeight": "700",
+        "bodyWeight": "400",
+        "letterSpacing": "normal",
+        "lineHeight": "normal",
+        "textTransform": "none",
+        "textShadow": false
+      },
+      "logos": {
+        "partyLogoUrl": "",
+        "partyLogoSize": 64,
+        "partyLogoVisible": true,
+        "candidateLogoUrl": "",
+        "candidateLogoSize": 72,
+        "candidateLogoVisible": true,
+        "campaignLogoUrl": "",
+        "campaignLogoSize": 64,
+        "campaignLogoVisible": true,
+        "coalitionLogos": [
+          {
+            "id": "coal-1",
+            "name": "PAN",
+            "url": "",
+            "size": 48,
+            "visible": true
+          },
+          {
+            "id": "coal-2",
+            "name": "PRI",
+            "url": "",
+            "size": 48,
+            "visible": true
+          },
+          {
+            "id": "coal-3",
+            "name": "PRD",
+            "url": "",
+            "size": 48,
+            "visible": true
+          }
+        ],
+        "alignment": "center"
+      },
+      "candidate": {
+        "fullName": "Jorge Meade González",
+        "shortName": "Jorge Meade",
+        "slogan": "Experiencia, Firmeza y Resultados para Morelos",
+        "tagline": "Candidato a Diputado Local por el Primer Distrito Cuernavaca",
+        "heroPhotoUrl": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80",
+        "heroPhotoStyle": "gradient_cut",
+        "coverPhotoUrl": "",
+        "bio": "Morelense comprometido con el desarrollo económico, la seguridad de las familias y el fortalecimiento de nuestras instituciones. Con más de 20 años de servicio en la administración pública y trabajo legislativo cercano a la gente.",
+        "quote": "Morelos necesita leyes con sentido humano y presupuestos que realmente lleguen a las colonias.",
+        "location": "Cuernavaca, Morelos",
+        "district": "Distrito I Local",
+        "state": "Morelos",
+        "municipality": "Cuernavaca"
+      },
+      "sections": [
+        {
+          "id": "sec-hero",
+          "type": "hero",
+          "title": "Portada Principal",
+          "enabled": true,
+          "order": 1,
+          "data": {}
+        },
+        {
+          "id": "sec-bio",
+          "type": "bio",
+          "title": "Semblanza & Trayectoria",
+          "subtitle": "Una vida dedicada al servicio de las familias morelenses",
+          "enabled": true,
+          "order": 2,
+          "data": {
+            "fullBio": "Abogado egresado con honores, servidor público y legislador con probada honestidad. Ha impulsado reformas en materia de seguridad, impulso a comerciantes locales y fondos de infraestructura para colonias populares.",
+            "education": [
+              {
+                "id": "edu-1",
+                "year": "2004",
+                "title": "Licenciatura en Derecho",
+                "institution": "Universidad Autónoma del Estado de Morelos (UAEM)"
+              },
+              {
+                "id": "edu-2",
+                "year": "2008",
+                "title": "Maestría en Políticas Públicas",
+                "institution": "Instituto Nacional de Administración Pública"
+              }
+            ],
+            "experience": [
+              {
+                "id": "exp-1",
+                "year": "2021-2024",
+                "title": "Asesor Legislativo de Desarrollo Social",
+                "institution": "Congreso del Estado de Morelos"
+              },
+              {
+                "id": "exp-2",
+                "year": "2016-2020",
+                "title": "Director de Enlace Ciudadano y Participación",
+                "institution": "Gobierno de Morelos"
+              }
+            ]
+          }
+        },
+        {
+          "id": "sec-proposals",
+          "type": "proposals",
+          "title": "Ejes y Compromisos Legislativos",
+          "subtitle": "Iniciativas de ley con presupuesto garantizado",
+          "enabled": true,
+          "order": 3,
+          "data": {
+            "items": [
+              {
+                "id": "prop-1",
+                "pillar": "Seguridad Ciudadana",
+                "title": "Ley Estatal de Dignificación Policial",
+                "description": "Garantizar sueldos dignos, seguros de vida y capacitación permanente a cuerpos policiales municipales.",
+                "impact": "Mayor cobertura y patrullaje en las 36 cabeceras de Morelos"
+              },
+              {
+                "id": "prop-2",
+                "pillar": "Economía y Empleo",
+                "title": "Fondo de Reactivación para Mercados y Tianguis",
+                "description": "Créditos a la palabra sin intereses para microempresarios, comerciantes de Cuernavaca y prestadores de servicios.",
+                "impact": "Beneficio directo a más de 15,000 comerciantes formales y tradicionales"
+              },
+              {
+                "id": "prop-3",
+                "pillar": "Agua Potable",
+                "title": "Reforma Integral a la Ley del Agua",
+                "description": "Inversión urgente en redes de distribución para evitar fugas y garantizar abasto constante en todas las colonias.",
+                "impact": "Fin a los tandeos prolongados y tarifas justas con medidores calibrados"
+              }
+            ]
+          }
+        },
+        {
+          "id": "sec-gallery",
+          "type": "gallery",
+          "title": "Recorridos en Territorio",
+          "subtitle": "Caminando las colonias y dialogando de frente con la gente",
+          "enabled": true,
+          "order": 4,
+          "data": {
+            "images": [
+              {
+                "id": "g-1",
+                "url": "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=800&q=80",
+                "caption": "Asamblea vecinal en Colonia Satélite, Cuernavaca"
+              },
+              {
+                "id": "g-2",
+                "url": "https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=800&q=80",
+                "caption": "Reunión con comerciantes del Mercado Adolfo López Mateos"
+              },
+              {
+                "id": "g-3",
+                "url": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80",
+                "caption": "Jornada ciudadana de bacheo y luminarias comunitarias"
+              }
+            ]
+          }
+        },
+        {
+          "id": "sec-contact",
+          "type": "contact",
+          "title": "Casa de Gestión & Contacto Directo",
+          "subtitle": "Tu voz es nuestra propuesta en el Congreso",
+          "enabled": true,
+          "order": 5,
+          "data": {
+            "phone": "777 312 8490",
+            "whatsapp": "527773128490",
+            "email": "contacto@jorgemeade.mx",
+            "address": "Av. Plan de Ayala 705, Cuernavaca, Morelos",
+            "hours": "Lunes a Viernes: 9:00 AM a 6:00 PM"
+          }
+        },
+        {
+          "id": "sec-faq",
+          "type": "faq",
+          "title": "Preguntas Frecuentes Ciudadanas",
+          "subtitle": "Respuestas claras y directas a inquietudes del distrito",
+          "enabled": true,
+          "order": 6,
+          "data": {
+            "items": [
+              {
+                "id": "faq-1",
+                "question": "¿Dónde estará ubicada la Casa de Gestión Ciudadana?",
+                "answer": "Estará en Avenida Plan de Ayala, con atención jurídica, médica y orientación de trámites de manera totalmente gratuita de lunes a viernes."
+              },
+              {
+                "id": "faq-2",
+                "question": "¿Cómo puedo enviar una solicitud de gestión para mi colonia?",
+                "answer": "Puedes utilizar directamente el formulario ciudadano de esta página para generar tu folio oficial de seguimiento o escribirnos al WhatsApp oficial."
+              }
+            ]
+          }
+        }
+      ],
+      "buttons": [
+        {
+          "id": "btn-wa",
+          "label": "Escribir por WhatsApp",
+          "style": "solid",
+          "actionType": "whatsapp",
+          "actionValue": "527773128490",
+          "icon": "MessageCircle",
+          "enabled": true,
+          "bgColor": "#25D366",
+          "color": "#FFFFFF"
+        },
+        {
+          "id": "btn-form",
+          "label": "Solicitud con Folio Ciudadano",
+          "style": "gradient",
+          "actionType": "citizen_form",
+          "actionValue": "#citizen-form",
+          "icon": "FileText",
+          "enabled": true
+        },
+        {
+          "id": "btn-vcard",
+          "label": "Guardar Contacto (vCard)",
+          "style": "outline",
+          "actionType": "vcard",
+          "actionValue": "download",
+          "icon": "UserPlus",
+          "enabled": true
+        },
+        {
+          "id": "btn-map",
+          "label": "Ver Casa de Gestión",
+          "style": "glass",
+          "actionType": "map",
+          "actionValue": "https://maps.google.com/?q=Plan+de+Ayala+Cuernavaca+Morelos",
+          "icon": "MapPin",
+          "enabled": true
+        }
+      ],
+      "meta": {
+        "createdAt": "2026-05-10T10:00:00.000Z",
+        "updatedAt": "2026-06-01T14:30:00.000Z",
+        "publishedAt": "2026-05-15T12:00:00.000Z",
+        "publishedUrl": "https://lavdigitalmkt.com/elecciones/jorge-meade/",
+        "viewsCount": 3840,
+        "clicksCount": 1290,
+        "qrScansCount": 412,
+        "inquiriesCount": 85
+      }
+    },
+    {
+      "id": "proj-cuautla-02",
+      "internalName": "Planilla Municipal Cuautla — Juntos por Cuautla",
+      "slug": "planilla-cuautla",
+      "previousSlugs": [],
+      "status": "publicado",
+      "category": "municipal",
+      "role": "Presidencia Municipal (Ayuntamiento)",
+      "stage": "candidatura",
+      "partyId": "MORENA",
+      "coalitionParties": [
+        "PT",
+        "PVEM"
+      ],
+      "designFamily": "campana_moderna",
+      "variantId": "mod_bento_grid",
+      "palette": {
+        "id": "cuautla_palette",
+        "name": "Guinda Cuautla",
+        "primary": "#9B2242",
+        "secondary": "#8E2543",
+        "accent": "#E1CD00",
+        "background": "#FDFBFC",
+        "surface": "#FFFFFF",
+        "text": "#1F1116",
+        "textMuted": "#6B7280",
+        "gradient": "linear-gradient(135deg, #9B2242 0%, #731730 100%)"
+      },
+      "typography": {
+        "headingFont": "Manrope",
+        "bodyFont": "DM Sans",
+        "headingWeight": "800",
+        "bodyWeight": "500",
+        "letterSpacing": "tight",
+        "lineHeight": "normal",
+        "textTransform": "none",
+        "textShadow": false
+      },
+      "logos": {
+        "partyLogoUrl": "",
+        "partyLogoSize": 64,
+        "partyLogoVisible": true,
+        "candidateLogoUrl": "",
+        "candidateLogoSize": 68,
+        "candidateLogoVisible": true,
+        "campaignLogoUrl": "",
+        "campaignLogoSize": 64,
+        "campaignLogoVisible": true,
+        "slateLogoUrl": "",
+        "slateLogoSize": 64,
+        "slateLogoVisible": true,
+        "coalitionLogos": [
+          {
+            "id": "c-mor",
+            "name": "Morena",
+            "url": "",
+            "size": 44,
+            "visible": true
+          },
+          {
+            "id": "c-pt",
+            "name": "PT",
+            "url": "",
+            "size": 44,
+            "visible": true
+          },
+          {
+            "id": "c-pvem",
+            "name": "PVEM",
+            "url": "",
+            "size": 44,
+            "visible": true
+          }
+        ],
+        "alignment": "center"
+      },
+      "candidate": {
+        "fullName": "Dra. María Elena Ramos Salazar",
+        "shortName": "Dra. Elena Ramos",
+        "slogan": "Cuautla Merece Paz, Agua y Prosperidad",
+        "tagline": "Candidata a Presidenta Municipal de la Heroica e Histórica Cuautla",
+        "heroPhotoUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80",
+        "heroPhotoStyle": "rounded",
+        "coverPhotoUrl": "",
+        "bio": "Médica cirujana y servidora social. Con profundo arraigo en las 45 colonias de Cuautla. Comprometida a devolver la seguridad ciudadana, la transparencia en las arcas municipales y el rescate del Centro Histórico.",
+        "quote": "El dinero del pueblo se invierte en obras prioritarias para el pueblo.",
+        "location": "Cuautla, Morelos",
+        "state": "Morelos",
+        "municipality": "Cuautla"
+      },
+      "municipalSlate": {
+        "municipality": "Cuautla",
+        "slateName": "Planilla de Unidad por Cuautla",
+        "headerPhotoUrl": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80",
+        "members": [
+          {
+            "id": "m-1",
+            "fullName": "Dra. María Elena Ramos Salazar",
+            "roleTitle": "Presidenta Municipal Propietaria",
+            "type": "presidencia",
+            "order": 1,
+            "photoUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80",
+            "party": "Morena",
+            "bio": "Médica cirujana con 22 años de ejercicio profesional y vocación comunitaria en el Hospital General de Cuautla.",
+            "phone": "735 120 4455",
+            "email": "elena.ramos@juntosporcuautla.org",
+            "proposals": [
+              "Cero tolerancia a la corrupción",
+              "Rehabilitación del colector pluvial histórico",
+              "Creación de 4 Clínicas de Salud Vecinal"
+            ]
+          },
+          {
+            "id": "m-2",
+            "fullName": "Lic. Sofía Beltrán Mercado",
+            "roleTitle": "Suplente de Presidencia Municipal",
+            "type": "suplente_presidencia",
+            "order": 2,
+            "photoUrl": "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=600&q=80",
+            "party": "Morena",
+            "bio": "Especialista en desarrollo urbano sustentable y fundadora de cooperativas de artesanos y viveristas de Morelos."
+          },
+          {
+            "id": "m-3",
+            "fullName": "Mtro. Carlos Alberto Villegas",
+            "roleTitle": "Síndico Municipal Propietario",
+            "type": "sindicatura",
+            "order": 3,
+            "photoUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80",
+            "party": "PT",
+            "bio": "Contador público auditor con maestría en derecho fiscal. Garante de la vigilancia patrimonial y cuentas claras.",
+            "phone": "735 352 1100"
+          },
+          {
+            "id": "m-4",
+            "fullName": "Lic. Roberto Montero Ortiz",
+            "roleTitle": "Suplente de Síndico Municipal",
+            "type": "suplente_sindicatura",
+            "order": 4,
+            "photoUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80",
+            "party": "PT",
+            "bio": "Abogado con especialidad en patrimonio ejidal y derechos agrarios en la región oriente de Morelos."
+          },
+          {
+            "id": "m-5",
+            "fullName": "Ing. Lorena Méndez Carvajal",
+            "roleTitle": "Primera Regiduría — Obras Públicas y Agua",
+            "type": "regiduria",
+            "order": 5,
+            "photoUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
+            "party": "Morena",
+            "bio": "Ingeniera civil morelense especializada en redes hidráulicas y saneamiento de mantos freáticos."
+          },
+          {
+            "id": "m-6",
+            "fullName": "Lic. Fernando Téllez Aguilar",
+            "roleTitle": "Segunda Regiduría — Seguridad y Tránsito",
+            "type": "regiduria",
+            "order": 6,
+            "photoUrl": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=600&q=80",
+            "party": "PVEM",
+            "bio": "Criminólogo y promotor de programas de prevención del delito y rescate de canchas deportivas."
+          },
+          {
+            "id": "m-7",
+            "fullName": "Mtra. Patricia Galván Solís",
+            "roleTitle": "Tercera Regiduría — Educación y Cultura",
+            "type": "regiduria",
+            "order": 7,
+            "photoUrl": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=600&q=80",
+            "party": "Morena",
+            "bio": "Docente normalista de Cuautla con más de 25 años en secundarias públicas e impulso a becas de transporte."
+          }
+        ]
+      },
+      "sections": [
+        {
+          "id": "sec-hero",
+          "type": "hero",
+          "title": "Portada y Lema",
+          "enabled": true,
+          "order": 1,
+          "data": {}
+        },
+        {
+          "id": "sec-slate",
+          "type": "slate",
+          "title": "Integrantes de la Planilla Municipal",
+          "subtitle": "Conoce al equipo de mujeres y hombres que transformarán Cuautla",
+          "enabled": true,
+          "order": 2,
+          "data": {}
+        },
+        {
+          "id": "sec-proposals",
+          "type": "proposals",
+          "title": "Plan de Rescate para Cuautla",
+          "subtitle": "Cinco pilares de bienestar social e inversión urgente",
+          "enabled": true,
+          "order": 3,
+          "data": {
+            "items": [
+              {
+                "id": "prop-c-1",
+                "pillar": "Servicios Básicos",
+                "title": "Cero Fugas y Agua Diaria",
+                "description": "Modernización del sistema de bombeo y renovación de tuberías en las zonas altas de Cuautla."
+              },
+              {
+                "id": "prop-c-2",
+                "pillar": "Paz y Seguridad",
+                "title": "Centro de Monitoreo C4 Municipal",
+                "description": "Instalación de 300 cámaras conectadas a la ciudadanía y botones de pánico en comercios."
+              },
+              {
+                "id": "prop-c-3",
+                "pillar": "Desarrollo Económico",
+                "title": "Reactivación Turística del Tren Escénico y Centro",
+                "description": "Embellecimiento de plazas, seguridad turística y corredor gastronómico tradicional."
+              }
+            ]
+          }
+        },
+        {
+          "id": "sec-contact",
+          "type": "contact",
+          "title": "Atención a la Ciudadanía",
+          "subtitle": "Reporta solicitudes y peticiones de tu colonia con folio oficial",
+          "enabled": true,
+          "order": 4,
+          "data": {
+            "phone": "735 120 4455",
+            "whatsapp": "527351204455",
+            "email": "contacto@juntosporcuautla.org",
+            "address": "Plaza Revolución del Sur #14, Centro, Cuautla, Morelos"
+          }
+        }
+      ],
+      "buttons": [
+        {
+          "id": "btn-wa",
+          "label": "WhatsApp de Campaña",
+          "style": "solid",
+          "actionType": "whatsapp",
+          "actionValue": "527351204455",
+          "icon": "MessageCircle",
+          "enabled": true,
+          "bgColor": "#25D366",
+          "color": "#FFFFFF"
+        },
+        {
+          "id": "btn-slate",
+          "label": "Ver Planilla Completa",
+          "style": "outline",
+          "actionType": "external_url",
+          "actionValue": "#slate-section",
+          "icon": "Users",
+          "enabled": true
+        },
+        {
+          "id": "btn-report",
+          "label": "Hacer Reporte de Colonia",
+          "style": "gradient",
+          "actionType": "citizen_form",
+          "actionValue": "#citizen-form",
+          "icon": "ClipboardList",
+          "enabled": true
+        }
+      ],
+      "meta": {
+        "createdAt": "2026-05-12T09:00:00.000Z",
+        "updatedAt": "2026-06-02T16:00:00.000Z",
+        "publishedAt": "2026-05-18T10:00:00.000Z",
+        "publishedUrl": "https://lavdigitalmkt.com/elecciones/planilla-cuautla/",
+        "viewsCount": 5120,
+        "clicksCount": 2310,
+        "qrScansCount": 890,
+        "inquiriesCount": 142
+      }
+    },
+    {
+      "id": "proj-ayudantia-ocotepec-03",
+      "internalName": "Ayudantía Municipal Ocotepec — Planilla Morada",
+      "slug": "ayudantia-ocotepec",
+      "previousSlugs": [],
+      "status": "publicado",
+      "category": "auxiliar",
+      "role": "Ayudantía Municipal (Poblado / Colonia)",
+      "stage": "candidatura",
+      "partyId": "PLANILLA_COLOR",
+      "coalitionParties": [],
+      "designFamily": "comunitaria",
+      "variantId": "com_planilla_color_morada",
+      "palette": {
+        "id": "ocotepec_palette",
+        "name": "Planilla Morada Tradicional",
+        "primary": "#7C3AED",
+        "secondary": "#9333EA",
+        "accent": "#F59E0B",
+        "background": "#FAF5FF",
+        "surface": "#FFFFFF",
+        "text": "#1E1B4B",
+        "textMuted": "#6B7280",
+        "gradient": "linear-gradient(135deg, #7C3AED 0%, #9333EA 100%)"
+      },
+      "typography": {
+        "headingFont": "Rubik",
+        "bodyFont": "Plus Jakarta Sans",
+        "headingWeight": "700",
+        "bodyWeight": "400",
+        "letterSpacing": "normal",
+        "lineHeight": "normal",
+        "textTransform": "none",
+        "textShadow": false
+      },
+      "logos": {
+        "partyLogoVisible": false,
+        "candidateLogoVisible": true,
+        "campaignLogoVisible": true,
+        "slateLogoVisible": true,
+        "alignment": "center"
+      },
+      "candidate": {
+        "fullName": "C. Vicente Morales Zúñiga",
+        "shortName": "Don Chente Morales",
+        "slogan": "Unión, Respeto a Nuestras Tradiciones y Progreso Comunitario",
+        "tagline": "Aspirante a Ayudante Municipal del Poblado Originario de Ocotepec",
+        "heroPhotoUrl": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=800&q=80",
+        "heroPhotoStyle": "rounded",
+        "bio": "Vecino del Barrio de Santa Cruz, agricultor y promotor cultural con vocación de servicio. Ha participado activamente en comités de festejos patronales, faenas comunitarias y defensa del panteón comunal.",
+        "quote": "En Ocotepec mandan los barrios y la asamblea comunal.",
+        "location": "Poblado de Ocotepec, Cuernavaca",
+        "state": "Morelos",
+        "municipality": "Cuernavaca"
+      },
+      "municipalSlate": {
+        "municipality": "Cuernavaca",
+        "pobladoColonia": "Poblado Originario de Ocotepec",
+        "slateName": "Planilla Morada Vecinal",
+        "color": "morada",
+        "isAyudantia": true,
+        "communityProposals": [
+          "Faenas comunitarias mensuales con apoyo de maquinaria para caminos de saca",
+          "Cuentas claras y transparentes en administración de baños, panteón y festejos",
+          "Coordinación con la ronda comunitaria para velar por la tranquilidad nocturna",
+          "Mantenimiento continuo al campo deportivo y áreas recreativas para jóvenes"
+        ],
+        "members": [
+          {
+            "id": "oc-1",
+            "fullName": "C. Vicente Morales Zúñiga",
+            "roleTitle": "Ayudante Municipal Propietario",
+            "type": "ayudante",
+            "order": 1,
+            "photoUrl": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80",
+            "bio": "Campesino y comerciante con arraigo de cuatro generaciones en Ocotepec.",
+            "phone": "777 205 8899",
+            "whatsapp": "527772058899"
+          },
+          {
+            "id": "oc-2",
+            "fullName": "C. Marcelina Peña Estrada",
+            "roleTitle": "Suplente de Ayudante Municipal",
+            "type": "suplente_ayudante",
+            "order": 2,
+            "photoUrl": "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=600&q=80",
+            "bio": "Líder vecinal del Barrio de Ramos, promotora de talleres de bordado y cocina tradicional."
+          },
+          {
+            "id": "oc-3",
+            "fullName": "C. Juan Carlos Almonte Reyes",
+            "roleTitle": "Coordinador de Faenas Comunitarias",
+            "type": "equipo",
+            "order": 3,
+            "photoUrl": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=600&q=80",
+            "bio": "Encargado del enlace de maquinaria, desazolve de barrancas y rondines vecinales."
+          }
+        ]
+      },
+      "sections": [
+        {
+          "id": "sec-hero",
+          "type": "hero",
+          "title": "Portada de Planilla Morada",
+          "enabled": true,
+          "order": 1,
+          "data": {}
+        },
+        {
+          "id": "sec-slate",
+          "type": "slate",
+          "title": "Equipo de la Planilla Morada",
+          "subtitle": "Vecinos de los 4 barrios comprometidos con el pueblo",
+          "enabled": true,
+          "order": 2,
+          "data": {}
+        },
+        {
+          "id": "sec-proposals",
+          "type": "proposals",
+          "title": "Compromisos de Barrio a Barrio",
+          "subtitle": "Acciones concretas para Ocotepec",
+          "enabled": true,
+          "order": 3,
+          "data": {
+            "items": [
+              {
+                "id": "prop-oc-1",
+                "pillar": "Faenas y Tequio",
+                "title": "Rehabilitación de Caminos y Barrancas",
+                "description": "Calendario público de faenas sabatinas con material garantizado para cada barrio."
+              },
+              {
+                "id": "prop-oc-2",
+                "pillar": "Transparencia",
+                "title": "Asamblea Bimestral de Rendición de Cuentas",
+                "description": "Corte de caja a la vista de todos sobre ingresos y cuotas de mantenimiento comunitario."
+              }
+            ]
+          }
+        },
+        {
+          "id": "sec-contact",
+          "type": "contact",
+          "title": "Contacto con Don Chente Morales",
+          "subtitle": "Escríbenos para sumar ideas a la Planilla Morada",
+          "enabled": true,
+          "order": 4,
+          "data": {
+            "phone": "777 205 8899",
+            "whatsapp": "527772058899",
+            "address": "Plaza Cívica de Ocotepec, Cuernavaca, Morelos"
+          }
+        }
+      ],
+      "buttons": [
+        {
+          "id": "btn-wa",
+          "label": "WhatsApp de Don Chente",
+          "style": "solid",
+          "actionType": "whatsapp",
+          "actionValue": "527772058899",
+          "icon": "MessageCircle",
+          "enabled": true,
+          "bgColor": "#7C3AED",
+          "color": "#FFFFFF"
+        },
+        {
+          "id": "btn-vcard",
+          "label": "Guardar Tarjeta Digital",
+          "style": "outline",
+          "actionType": "vcard",
+          "actionValue": "download",
+          "icon": "UserPlus",
+          "enabled": true
+        },
+        {
+          "id": "btn-form",
+          "label": "Petición Comunitaria con Folio",
+          "style": "pill",
+          "actionType": "citizen_form",
+          "actionValue": "#citizen-form",
+          "icon": "FileText",
+          "enabled": true
+        }
+      ],
+      "meta": {
+        "createdAt": "2026-05-14T08:00:00.000Z",
+        "updatedAt": "2026-06-03T11:00:00.000Z",
+        "publishedAt": "2026-05-20T09:00:00.000Z",
+        "publishedUrl": "https://lavdigitalmkt.com/elecciones/ayudantia-ocotepec/",
+        "viewsCount": 2210,
+        "clicksCount": 940,
+        "qrScansCount": 650,
+        "inquiriesCount": 61
+      }
+    },
+    {
+      "id": "proj-judicial-claudia-04",
+      "internalName": "Magistrada Claudia Mendoza — Poder Judicial",
+      "slug": "magistrada-claudia-mendoza",
+      "previousSlugs": [],
+      "status": "publicado",
+      "category": "judicial",
+      "role": "Magistratura del Tribunal Superior Local",
+      "stage": "candidatura",
+      "partyId": "JUDICIAL_NEUTRAL",
+      "coalitionParties": [],
+      "designFamily": "institucional",
+      "variantId": "inst_tribunal_justicia",
+      "palette": {
+        "id": "judicial_palette",
+        "name": "Justicia y Sobriedad Institucional",
+        "primary": "#1E3A5F",
+        "secondary": "#0F2744",
+        "accent": "#C5A059",
+        "background": "#F9FAFB",
+        "surface": "#FFFFFF",
+        "text": "#0B1320",
+        "textMuted": "#4B5563",
+        "gradient": "linear-gradient(135deg, #0F2744 0%, #1E3A5F 100%)"
+      },
+      "typography": {
+        "headingFont": "Merriweather",
+        "bodyFont": "Source Sans 3",
+        "headingWeight": "700",
+        "bodyWeight": "400",
+        "letterSpacing": "wide",
+        "lineHeight": "relaxed",
+        "textTransform": "none",
+        "textShadow": false
+      },
+      "logos": {
+        "partyLogoVisible": false,
+        "candidateLogoVisible": false,
+        "campaignLogoVisible": false,
+        "slateLogoVisible": false,
+        "alignment": "center"
+      },
+      "candidate": {
+        "fullName": "Dra. Claudia Mendoza Arciniega",
+        "shortName": "Dra. Claudia Mendoza",
+        "slogan": "Justicia Imparcial, Carrera Judicial e Independencia",
+        "tagline": "Aspirante a Magistrada del Tribunal Superior de Justicia del Estado de Morelos",
+        "heroPhotoUrl": "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=800&q=80",
+        "heroPhotoStyle": "rounded",
+        "bio": "Doctora en Derecho por la UNAM con 24 años de carrera judicial ininterrumpida. Ha fungido como Secretaria de Acuerdos, Jueza de Primera Instancia en Materia Civil y Ponente. Perfil técnico, imparcial y sin filiación partidista.",
+        "quote": "El Estado de Derecho se construye resolviendo cada juicio con estricto apego a la Constitución y la dignidad de las personas.",
+        "location": "Cuernavaca, Morelos",
+        "state": "Morelos",
+        "municipality": "Cuernavaca"
+      },
+      "sections": [
+        {
+          "id": "sec-hero",
+          "type": "hero",
+          "title": "Presentación Institucional",
+          "enabled": true,
+          "order": 1,
+          "data": {}
+        },
+        {
+          "id": "sec-bio",
+          "type": "bio",
+          "title": "Carrera Judicial & Méritos Académicos",
+          "subtitle": "Dos décadas de servicio jurisdiccional intachable",
+          "enabled": true,
+          "order": 2,
+          "data": {
+            "fullBio": "Acreditada en concursos de oposición judicial. Autora de tres libros sobre oralidad procesal y garantías constitucionales. Catedrática de posgrado en Derecho Procesal.",
+            "education": [
+              {
+                "id": "edu-j1",
+                "year": "2001",
+                "title": "Licenciatura en Derecho",
+                "institution": "Facultad de Derecho, UNAM"
+              },
+              {
+                "id": "edu-j2",
+                "year": "2009",
+                "title": "Maestría en Juicios Orales",
+                "institution": "Universidad Carlos III de Madrid / INACIPE"
+              },
+              {
+                "id": "edu-j3",
+                "year": "2016",
+                "title": "Doctorado en Ciencias Jurídicas",
+                "institution": "UNAM (Mención Honorífica)"
+              }
+            ],
+            "experience": [
+              {
+                "id": "exp-j1",
+                "year": "2018-Actual",
+                "title": "Jueza Primera de Distrito en Materia Civil",
+                "institution": "Poder Judicial"
+              },
+              {
+                "id": "exp-j2",
+                "year": "2010-2017",
+                "title": "Secretaria Proyectista de Sala Superior",
+                "institution": "Tribunal Superior de Justicia"
+              }
+            ]
+          }
+        },
+        {
+          "id": "sec-proposals",
+          "type": "proposals",
+          "title": "Ejes para el Fortalecimiento Judicial",
+          "subtitle": "Principios rectores para una impartición de justicia pronta y expedita",
+          "enabled": true,
+          "order": 3,
+          "data": {
+            "items": [
+              {
+                "id": "prop-j-1",
+                "pillar": "Eficiencia Procesal",
+                "title": "Cero Rezago en Sentencias Civiles y Familiares",
+                "description": "Implementación del expediente digital con firma electrónica avanzada y tiempos máximos de resolución."
+              },
+              {
+                "id": "prop-j-2",
+                "pillar": "Transparencia",
+                "title": "Sentencias en Lenguaje Ciudadano y Claro",
+                "description": "Redacción accesible y comprensible para cualquier ciudadano sin tecnicismos innecesarios."
+              },
+              {
+                "id": "prop-j-3",
+                "pillar": "Ética e Independencia",
+                "title": "Autonomía Jurisdiccional Plena",
+                "description": "Firmeza e imparcialidad técnica sin subordinación a intereses económicos ni políticos."
+              }
+            ]
+          }
+        },
+        {
+          "id": "sec-documents",
+          "type": "documents",
+          "title": "Currículum y Publicaciones Doctrinales",
+          "subtitle": "Documentos oficiales verificables para consulta pública",
+          "enabled": true,
+          "order": 4,
+          "data": {
+            "items": [
+              {
+                "id": "doc-1",
+                "title": "Currículum Vitae Jurídico Extenso",
+                "description": "Historial completo de carrera judicial, cédulas profesionales y reconocimientos.",
+                "fileUrl": "#",
+                "fileSize": "1.4 MB",
+                "pages": 18
+              },
+              {
+                "id": "doc-2",
+                "title": "Ensayo sobre Oralidad y Tutela Judicial Efectiva",
+                "description": "Publicación académica indexada en Revista de Derecho Procesal.",
+                "fileUrl": "#",
+                "fileSize": "850 KB",
+                "pages": 24
+              }
+            ]
+          }
+        },
+        {
+          "id": "sec-contact",
+          "type": "contact",
+          "title": "Contacto Académico y Profesional",
+          "subtitle": "Canal de comunicación profesional e institucional",
+          "enabled": true,
+          "order": 5,
+          "data": {
+            "email": "contacto@magistradaclaudiamendoza.mx",
+            "phone": "777 318 9000",
+            "address": "Cuernavaca, Morelos"
+          }
+        }
+      ],
+      "buttons": [
+        {
+          "id": "btn-doc",
+          "label": "Descargar CV Oficial (PDF)",
+          "style": "solid",
+          "actionType": "document",
+          "actionValue": "#documents-section",
+          "icon": "Download",
+          "enabled": true,
+          "bgColor": "#1E3A5F",
+          "color": "#FFFFFF"
+        },
+        {
+          "id": "btn-email",
+          "label": "Contacto Institucional",
+          "style": "outline",
+          "actionType": "email",
+          "actionValue": "contacto@magistradaclaudiamendoza.mx",
+          "icon": "Mail",
+          "enabled": true
+        },
+        {
+          "id": "btn-vcard",
+          "label": "Guardar Ficha de Contacto",
+          "style": "glass",
+          "actionType": "vcard",
+          "actionValue": "download",
+          "icon": "UserPlus",
+          "enabled": true
+        }
+      ],
+      "meta": {
+        "createdAt": "2026-05-15T11:00:00.000Z",
+        "updatedAt": "2026-06-04T09:00:00.000Z",
+        "publishedAt": "2026-05-22T14:00:00.000Z",
+        "publishedUrl": "https://lavdigitalmkt.com/elecciones/magistrada-claudia-mendoza/",
+        "viewsCount": 1650,
+        "clicksCount": 520,
+        "qrScansCount": 230,
+        "inquiriesCount": 19
+      }
+    }
+  ],
+  "customTemplates": [],
+  "citizenInquiries": [
+    {
+      "id": "inq-1794700868650-e42c",
+      "folio": "LAV-2026-7865",
+      "projectId": "proj-jorge-meade-01",
+      "projectSlug": "jorge-meade",
+      "projectCandidateName": "Jorge Meade González",
+      "citizenName": "Juan Perez Test",
+      "citizenEmail": "",
+      "citizenPhone": "",
+      "citizenColonia": "Centro",
+      "inquiryType": "solicitud",
+      "message": "Prueba de folio",
+      "privacyAccepted": true,
+      "status": "nuevo",
+      "createdAt": "2026-11-15T00:01:08.650Z"
+    },
+    {
+      "id": "inq-seed-1",
+      "folio": "LAV-2026-4819",
+      "projectId": "proj-jorge-meade-01",
+      "projectSlug": "jorge-meade",
+      "projectCandidateName": "Jorge Meade González",
+      "citizenName": "Patricia Morales Fuentes",
+      "citizenEmail": "patricia.morales@gmail.com",
+      "citizenPhone": "777 412 9901",
+      "citizenColonia": "Colonia Satélite, Cuernavaca",
+      "inquiryType": "solicitud",
+      "message": "Solicitamos apoyo para iluminar el parque de la 3ra sección de la colonia Satélite y podar ramas que tapan luminarias.",
+      "privacyAccepted": true,
+      "status": "en_proceso",
+      "createdAt": "2026-05-28T14:20:00.000Z",
+      "notes": "Turnado al equipo de enlace legislativo el 29 de mayo."
+    },
+    {
+      "id": "inq-seed-2",
+      "folio": "LAV-2026-7290",
+      "projectId": "proj-cuautla-02",
+      "projectSlug": "planilla-cuautla",
+      "projectCandidateName": "Dra. María Elena Ramos Salazar",
+      "citizenName": "Roberto Mendoza Tapia",
+      "citizenEmail": "roberto.mendoza@hotmail.com",
+      "citizenPhone": "735 981 2234",
+      "citizenColonia": "Colonia Emiliano Zapata, Cuautla",
+      "inquiryType": "propuesta",
+      "message": "Propuesta de reordenamiento para el tianguis dominical con contenedores ecológicos de basura y baños portátiles limpios.",
+      "privacyAccepted": true,
+      "status": "nuevo",
+      "createdAt": "2026-06-01T09:15:00.000Z"
+    }
+  ],
+  "analyticsEvents": []
+}
