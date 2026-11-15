@@ -14,7 +14,7 @@ export const QrModal: React.FC<QrModalProps> = ({ project, onClose }) => {
 
   if (!project) return null;
 
-  const publicUrl = `https://lavdigitalmkt.com/elecciones/${project.slug}/`;
+  const publicUrl = `https://lavdigitalagency.com/elecciones/${project.slug}/`;
 
   useEffect(() => {
     generateQrDataUrl(publicUrl, {
@@ -92,7 +92,7 @@ export const QrModal: React.FC<QrModalProps> = ({ project, onClose }) => {
               Descargar PNG (Alta Res)
             </button>
             <a
-              href={`#/p/${project.slug}`}
+              href={`/elecciones/${project.slug}/`}
               target="_blank"
               rel="noreferrer"
               className="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-colors border border-slate-200"
