@@ -111,6 +111,12 @@ export default function App() {
   useEffect(() => {
     if(user)loadData();
   }, [user]);
+  useEffect(()=>{
+    if(!publicSlug || user)return;
+    api.getProjectBySlug(publicSlug).then(result=>{
+      if(result.success)setProjects(prev=>[...prev.filter(p=>p.id!==result.project.id),result.project]);
+    }).catch(()=>{});
+  },[publicSlug,user]);
 
   if(!authReady)return <div className="min-h-screen flex items-center justify-center">Verificando acceso…</div>;
   if(!user && !publicSlug)return <main className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
@@ -443,6 +449,8 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col text-slate-900 font-sans">
       {/* Top Bar Header */}
+      {accountControls}
+      {user?.role!=='superadmin'&&<div className="bg-white p-2 text-right text-xs"><span>{user?.username}</span><button className="ml-3 underline" onClick={async()=>{await auth.logout();setUser(null);setProjects([]);}}>Cerrar sesión</button></div>}
       <Header
         currentView={currentView}
         onNavigate={(view) => {
