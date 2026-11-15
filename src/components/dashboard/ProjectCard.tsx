@@ -43,7 +43,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const publicUrl = `https://lavdigitalmkt.com/elecciones/${project.slug}/`;
+  const publicUrl = `https://lavdigitalagency.com/elecciones/${project.slug}/`;
 
   const copyUrl = (e: React.MouseEvent) => {
     e.stopPropagation();
