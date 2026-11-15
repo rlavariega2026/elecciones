@@ -39,5 +39,5 @@ jobs:
           port: ${{ secrets.FTP_PORT || '21' }}
           protocol: ftp
           local-dir: ./dist/
-          server-dir: /public_html/elecciones/
+          server-dir: /elecciones/
           dangerous-clean-slate: false
