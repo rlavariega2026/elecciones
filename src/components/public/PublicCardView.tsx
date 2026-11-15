@@ -126,6 +126,15 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
         fontFamily: typography.bodyFont ? `'${typography.bodyFont}', sans-serif` : 'inherit',
       }}
     >
+      {isStandalone && Boolean((project.meta as any)?.demo) && (
+        <div className="fixed inset-0 z-[90] pointer-events-none flex items-center justify-center overflow-hidden" aria-hidden="true">
+          <div className="w-[min(75vw,360px)] -rotate-12 text-center opacity-25 select-none">
+            <img src="/elecciones/logo-lav.svg" alt="" className="w-full" />
+            <div className="text-[clamp(3rem,15vw,7rem)] font-black leading-none tracking-wider text-violet-600">DEMO</div>
+            <div className="text-xs font-bold text-indigo-600">Versión de demostración · LAV Digital MKT</div>
+          </div>
+        </div>
+      )}
       {/* Top Banner / Emblems Strip */}
       <header className="w-full bg-white/80 backdrop-blur border-b border-slate-200/60 sticky top-0 z-30 px-4 py-2.5">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
