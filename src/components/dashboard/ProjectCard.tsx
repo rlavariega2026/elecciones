@@ -57,7 +57,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const getStatusBadge = () => {
     switch (project.status) {
       case 'publicado':
-        if (project.meta?.demo) return <span className="text-[11px] font-semibold text-violet-700 bg-violet-50 border border-violet-200 px-2 py-0.5 rounded-md">DEMO</span>;
+        if ((project.meta as any)?.demo) return <span className="text-[11px] font-semibold text-violet-700 bg-violet-50 border border-violet-200 px-2 py-0.5 rounded-md">DEMO</span>;
         return (
           <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded-md flex items-center gap-1">
             <Globe className="w-3 h-3 text-emerald-600" />
@@ -193,7 +193,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                       className="w-full text-left px-3.5 py-2 hover:bg-slate-50 text-slate-700 flex items-center gap-2 font-medium"
                     >
                       <Send className="w-3.5 h-3.5 text-slate-500" />
-                      {project.status === 'publicado' && !project.meta?.demo ? 'Despublicar' : 'Publicar definitiva'}
+                      {project.status === 'publicado' && !(project.meta as any)?.demo ? 'Despublicar' : 'Publicar definitiva'}
                     </button>
                     <button
                       onClick={() => {
