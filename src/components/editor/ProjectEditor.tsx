@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Project } from '../../types';
-import { api } from '../../services/api';
+import { api, persistProjectImages } from '../../services/api';
 import { GeneralTab } from './tabs/GeneralTab';
 import { IdentityTab } from './tabs/IdentityTab';
 import { TypographyTab } from './tabs/TypographyTab';
@@ -78,7 +78,8 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await api.updateProject(project.id, project);
+      const ready = await persistProjectImages(project);
+      const res = await api.updateProject(project.id, ready);
       if (res.success) {
         setProject(res.project);
         setSavedSuccess(true);
@@ -97,8 +98,9 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
     if (!name?.trim()) return;
     setSaving(true);
     try {
+      const ready = await persistProjectImages(project);
       const res = await api.createProject({
-        ...project,
+        ...ready,
         id: undefined,
         internalName: name.trim(),
         slug: normalized(name) + '-' + Date.now().toString(36),
@@ -117,8 +119,9 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
         !window.confirm('¿Sustituir la versión definitiva por una DEMO en la misma URL?')) return;
     setSaving(true);
     try {
+      const ready = await persistProjectImages(project);
       const saved = await api.updateProject(project.id, {
-        ...project,
+        ...ready,
         meta: { ...project.meta, clientFolder: normalized(clientFolder) } as any,
       });
       if (!saved.success) throw new Error('No se guardaron los cambios');
