@@ -55,6 +55,14 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
   const [saving, setSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
+  const [showPublishPanel, setShowPublishPanel] = useState(false);
+  const [clientFolder, setClientFolder] = useState(() => (initialProject.meta as any)?.clientFolder || '');
+  const [publicationFolder, setPublicationFolder] = useState(initialProject.slug);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const normalized = (value: string) => value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '');
+  const fullSlug = [normalized(clientFolder), normalized(publicationFolder)].filter(Boolean).join('-');
+  const publishUrl = `https://lavdigitalagency.com/elecciones/${fullSlug}/`;
+
 
   const handleUpdate = (fields: Partial<Project>) => {
     setProject((prev) => ({
@@ -82,6 +90,46 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleSaveAs = async () => {
+    const name = window.prompt('Nombre del nuevo proyecto (Guardar como):', project.internalName + ' - copia');
+    if (!name?.trim()) return;
+    setSaving(true);
+    try {
+      const res = await api.createProject({
+        ...project,
+        id: undefined,
+        internalName: name.trim(),
+        slug: normalized(name) + '-' + Date.now().toString(36),
+        status: 'borrador',
+      } as any);
+      if (!res.success) throw new Error('No se pudo crear la copia');
+      alert('Copia independiente guardada: ' + name.trim());
+      onSaveComplete?.(res.project);
+    } catch (err: any) { alert(err.message || 'Error en Guardar como'); }
+    finally { setSaving(false); }
+  };
+
+  const handlePublishVersion = async (demo: boolean) => {
+    if (!fullSlug || fullSlug.length < 3) { alert('Escribe una carpeta de publicación válida'); return; }
+    if (demo && project.status === 'publicado' && !(project.meta as any)?.demo &&
+        !window.confirm('¿Sustituir la versión definitiva por una DEMO en la misma URL?')) return;
+    setSaving(true);
+    try {
+      const saved = await api.updateProject(project.id, {
+        ...project,
+        meta: { ...project.meta, clientFolder: normalized(clientFolder) } as any,
+      });
+      if (!saved.success) throw new Error('No se guardaron los cambios');
+      const result = await api.publishProject(project.id, fullSlug, demo);
+      if (!result.success) throw new Error('Error al publicar');
+      setProject(result.project);
+      setPublicationFolder(normalized(publicationFolder));
+      onSaveComplete?.(result.project);
+      alert((demo ? 'DEMO' : 'Publicación definitiva') + ' actualizada: ' + publishUrl);
+    } catch (err: any) { alert(err.message || 'Error de publicación'); }
+    finally { setSaving(false); }
   };
 
   const handlePublishToggle = async () => {
@@ -191,18 +239,14 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
             <ExternalLink className="w-4 h-4" />
           </a>
 
-          <button
-            onClick={handlePublishToggle}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
-              project.status === 'publicado'
-                ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200'
-            }`}
-          >
-            <Send className="w-3.5 h-3.5" />
-            {project.status === 'publicado' ? 'Publicado' : 'Publicar'}
+          <button onClick={() => setShowPublishPanel(v => !v)}
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-violet-700 hover:bg-violet-800 text-white">
+            <Send className="w-3.5 h-3.5 inline mr-1" /> Publicar
           </button>
-
+          <button onClick={handleSaveAs} disabled={saving}
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-300 text-slate-800">
+            Guardar como
+          </button>
           <button
             onClick={handleSave}
             disabled={saving}
@@ -223,6 +267,29 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
         </div>
       </header>
 
+      {showPublishPanel && (
+        <section className="bg-white border-b border-violet-200 px-4 py-4 space-y-3 shadow-sm">
+          <h3 className="font-semibold text-sm">Publicación en Hostinger</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <label className="text-xs font-medium">Carpeta del cliente (opcional)
+              <input value={clientFolder} onChange={e => setClientFolder(e.target.value)}
+                placeholder="cliente" className="block w-full mt-1 border border-slate-300 rounded-lg p-2" />
+            </label>
+            <label className="text-xs font-medium">Nombre de la publicación
+              <input value={publicationFolder} onChange={e => setPublicationFolder(e.target.value)}
+                placeholder="nombre-publicacion" className="block w-full mt-1 border border-slate-300 rounded-lg p-2" />
+            </label>
+          </div>
+          <div className="flex gap-2 flex-wrap items-center">
+            <span className="text-xs font-mono break-all">{publishUrl}</span>
+            <button className="text-xs underline" onClick={async () => { await navigator.clipboard.writeText(publishUrl); setCopiedLink(true); }}> {copiedLink ? 'Copiado' : 'Copiar enlace'}</button>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <button disabled={saving} onClick={() => handlePublishVersion(true)} className="bg-violet-700 text-white rounded-lg px-4 py-2 text-xs font-semibold">Publicar DEMO en Hostinger</button>
+            <button disabled={saving} onClick={() => handlePublishVersion(false)} className="bg-slate-900 text-white rounded-lg px-4 py-2 text-xs font-semibold">Publicar definitiva en Hostinger</button>
+          </div>
+        </section>
+      )}
       {/* Editor Body: Split Layout */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Control Drawer: Tabs & Config */}
