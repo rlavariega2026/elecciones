@@ -2,7 +2,7 @@
 -- LAV POLÍTICA DIGITAL — ESTRUCTURA DE BASE DE DATOS RELACIONAL ENTERPRISE
 -- Marca: LAV Digital MKT
 -- Lema: "Lo que no se ve, no existe"
--- Dominio: https://lavdigitalmkt.com/elecciones/
+-- Dominio: https://lavdigitalagency.com/elecciones/
 -- =========================================================================
 
 -- 1. TABLA DE USUARIOS / ADMINISTRADORES DE CAMPAÑA
