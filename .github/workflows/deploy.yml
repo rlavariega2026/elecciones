@@ -30,6 +30,29 @@ jobs:
           cp deploy/api/index.php dist/api/index.php
           cp deploy/manifest.webmanifest dist/manifest.webmanifest
           cp deploy/logo-lav.svg dist/logo-lav.svg
+      - name: Diagnose actual FTP root and verify target
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_PORT: ${{ secrets.FTP_PORT || '21' }}
+        run: |
+          python3 - <<'PY'
+          import ftplib,os
+          ftp=ftplib.FTP()
+          ftp.connect(os.environ['FTP_SERVER'].removeprefix('ftp://'),int(os.environ['FTP_PORT']),timeout=25)
+          ftp.login(os.environ['FTP_USERNAME'],os.environ['FTP_PASSWORD'])
+          print('FTP login root:',ftp.pwd())
+          print('FTP root entries:',ftp.nlst()[:50])
+          for p in ['/elecciones','/public_html/elecciones','/domains/lavdigitalagency.com/public_html/elecciones']:
+            try:
+              ftp.cwd(p)
+              print('EXISTS',p,'entries:',ftp.nlst()[:25])
+              ftp.cwd('/')
+            except ftplib.all_errors as e:
+              print('NOT ACCESSIBLE',p,str(e)[:140]);ftp.cwd('/')
+          ftp.quit()
+          PY
       - name: Deploy to Hostinger (only /elecciones/)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
