@@ -198,9 +198,17 @@ export default function App() {
     }
   };
 
+  const handlePublishDemo = async (project: Project) => {
+    if (project.status === 'publicado' && !project.meta?.demo && !window.confirm('¿Reemplazar la versión definitiva por una DEMO en la misma URL?')) return;
+    try {
+      const res = await api.publishProject(project.id, project.slug, true);
+      if (res.success) setProjects(prev => prev.map(p => p.id === project.id ? res.project : p));
+    } catch (e: any) { alert(e.message || 'Error publicando DEMO'); }
+  };
+
   const handlePublishToggle = async (project: Project) => {
     try {
-      if (project.status === 'publicado') {
+      if (project.status === 'publicado' && !project.meta?.demo) {
         const res = await api.unpublishProject(project.id);
         if (res.success) {
           setProjects(projects.map((p) => (p.id === project.id ? res.project : p)));
@@ -547,6 +555,7 @@ export default function App() {
                 onDuplicate={handleDuplicate}
                 onDelete={(p) => setDeleteCandidate(p)}
                 onPublishToggle={handlePublishToggle}
+                  onPublishDemo={handlePublishDemo}
                 onShowQr={(p) => setActiveQrProject(p)}
                 onSaveAsTemplate={() => {
                   api.saveTemplate({
