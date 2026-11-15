@@ -63,6 +63,8 @@ export default function App() {
   // 1. Initial Load & Route Listener (Public View vs Admin)
   useEffect(() => {
     const checkHashRoute = () => {
+      const pathSlug = window.location.pathname.match(/^\/elecciones\/([^/]+)\/?$/)?.[1];
+      if (pathSlug && pathSlug !== 'api') { setPublicSlug(decodeURIComponent(pathSlug)); return; }
       const hash = window.location.hash;
       if (hash.startsWith('#/p/')) {
         const slug = hash.replace('#/p/', '').replace(/\/$/, '');
@@ -74,7 +76,8 @@ export default function App() {
 
     checkHashRoute();
     window.addEventListener('hashchange', checkHashRoute);
-    return () => window.removeEventListener('hashchange', checkHashRoute);
+    window.addEventListener('popstate', checkHashRoute);
+    return () => { window.removeEventListener('hashchange', checkHashRoute); window.removeEventListener('popstate', checkHashRoute); };
   }, []);
 
   // Fetch Projects and Inquiries from Server
