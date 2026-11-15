@@ -2,6 +2,48 @@ import { Project, CitizenInquiry, AnalyticsSummary } from '../types';
 
 const BASE_API = '/elecciones/api';
 
+
+/** Transfer original image bytes in small chunks; no recompression or fixed app-side photo count. */
+export async function persistProjectImages<T>(value: T): Promise<T> {
+  const cache = new Map<string,string>();
+  const transfer = async (dataUrl: string): Promise<string> => {
+    if (cache.has(dataUrl)) return cache.get(dataUrl)!;
+    const match = /^data:(image\/(?:jpeg|png|webp|gif|avif));base64,(.*)$/s.exec(dataUrl);
+    if (!match) return dataUrl;
+    const mime = match[1];
+    const binary = atob(match[2]);
+    const id = 'lav' + Date.now().toString(36) + Math.random().toString(36).slice(2,16);
+    const chunkSize = 700000;
+    for (let i=0,offset=0;offset<binary.length;i++,offset+=chunkSize) {
+      const part = btoa(binary.slice(offset,offset+chunkSize));
+      const response = await fetch(`${BASE_API}/media/chunk`, {
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({uploadId:id,index:i,data:part}),
+      });
+      if (!response.ok) throw new Error('Error al subir la fotografía (bloque '+(i+1)+')');
+    }
+    const response = await fetch(`${BASE_API}/media/finish`, {
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({uploadId:id,mime}),
+    });
+    if (!response.ok) throw new Error('No se pudo guardar la fotografía original');
+    const result = await response.json();
+    cache.set(dataUrl,result.url);
+    return result.url;
+  };
+  const visit = async (item: any): Promise<any> => {
+    if (typeof item === 'string' && item.startsWith('data:image/')) return transfer(item);
+    if (Array.isArray(item)) return Promise.all(item.map(visit));
+    if (item && typeof item === 'object') {
+      const output: Record<string,any> = {};
+      for (const [key,entry] of Object.entries(item)) output[key] = await visit(entry);
+      return output;
+    }
+    return item;
+  };
+  return visit(value);
+}
+
 export const api = {
   // Projects
   async getProjects(filters?: {
