@@ -1,6 +1,6 @@
 import { Project, CitizenInquiry, AnalyticsSummary } from '../types';
 
-const BASE_API = '/api';
+const BASE_API = '/elecciones/api';
 
 export const api = {
   // Projects
