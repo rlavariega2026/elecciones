@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Project, CitizenInquiry } from './types';
-import { api } from './services/api';
+import { api, auth, AuthUser } from './services/api';
 import { Header } from './components/common/Header';
 import { StatsOverview } from './components/dashboard/StatsOverview';
 import { ProjectCard } from './components/dashboard/ProjectCard';
@@ -25,6 +25,17 @@ import {
 } from 'lucide-react';
 
 export default function App() {
+  const [user,setUser]=useState<AuthUser|null>(null);
+  const [authReady,setAuthReady]=useState(false);
+  const [loginName,setLoginName]=useState('');
+  const [loginPassword,setLoginPassword]=useState('');
+  const [loginError,setLoginError]=useState('');
+  const [userPanel,setUserPanel]=useState(false);
+  const [accounts,setAccounts]=useState<Array<AuthUser&{active:boolean}>>([]);
+  const [newUsername,setNewUsername]=useState('');
+  const [newPassword,setNewPassword]=useState('');
+  useEffect(()=>{auth.me().then(u=>setUser(u)).finally(()=>setAuthReady(true));},[]);
+  const reloadAccounts=async()=>{try{setAccounts(await auth.users());}catch(e:any){alert(e.message);}};
   // Navigation & View State
   const [currentView, setCurrentView] = useState<
     'dashboard' | 'editor' | 'templates' | 'analytics' | 'deploy'
@@ -98,9 +109,19 @@ export default function App() {
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if(user)loadData();
+  }, [user]);
 
+  if(!authReady)return <div className="min-h-screen flex items-center justify-center">Verificando acceso…</div>;
+  if(!user && !publicSlug)return <main className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+    <form className="bg-white rounded-2xl p-8 w-full max-w-sm space-y-4" onSubmit={async e=>{e.preventDefault();setLoginError('');try{setUser(await auth.login(loginName,loginPassword));setLoginPassword('');}catch(err:any){setLoginError(err.message||'Credenciales incorrectas');}}}>
+      <h1 className="font-bold text-2xl">LAV Política Digital</h1><p className="text-sm text-slate-500">Acceso autorizado</p>
+      <label className="block text-sm">Usuario<input autoComplete="username" value={loginName} onChange={e=>setLoginName(e.target.value)} required className="block w-full border rounded-lg p-3 mt-1"/></label>
+      <label className="block text-sm">Contraseña<input type="password" autoComplete="current-password" value={loginPassword} onChange={e=>setLoginPassword(e.target.value)} required className="block w-full border rounded-lg p-3 mt-1"/></label>
+      {loginError&&<p role="alert" className="text-red-700 text-sm">{loginError}</p>}
+      <button className="bg-slate-900 text-white rounded-lg p-3 w-full">Iniciar sesión</button>
+    </form>
+  </main>;
   // 2. Standalone Public View Route Rendering
   if (publicSlug) {
     const matched = projects.find(
@@ -133,10 +154,25 @@ export default function App() {
     );
   }
 
+  const accountControls=user?.role==='superadmin'&&<div className="bg-white border-b p-3 flex flex-wrap gap-3 items-center">
+    <button onClick={async()=>{setUserPanel(v=>!v);await reloadAccounts();}} className="border rounded-lg px-3 py-2 text-sm">Administración de usuarios</button>
+    <button onClick={async()=>{await auth.logout();setUser(null);setProjects([]);}} className="border rounded-lg px-3 py-2 text-sm">Cerrar sesión</button>
+    {userPanel&&<section className="w-full space-y-3"><h2 className="font-semibold">Usuarios autorizados</h2>
+      <form className="flex flex-wrap gap-2" onSubmit={async e=>{e.preventDefault();try{await auth.create(newUsername,newPassword);setNewUsername('');setNewPassword('');await reloadAccounts();}catch(err:any){alert(err.message);}}}>
+        <input placeholder="Nuevo usuario" value={newUsername} onChange={e=>setNewUsername(e.target.value)} required className="border p-2 rounded-lg"/>
+        <input type="password" placeholder="Contraseña (mínimo 12 caracteres)" value={newPassword} onChange={e=>setNewPassword(e.target.value)} required className="border p-2 rounded-lg"/>
+        <button className="bg-slate-900 text-white px-3 py-2 rounded-lg">Crear usuario</button>
+      </form>
+      {accounts.map(a=><div key={a.id} className="flex gap-2 items-center text-sm"><span>{a.username} · {a.role} · {a.active?'Activo':'Suspendido'}</span>
+      {a.role!=='superadmin'&&<><button className="underline" onClick={async()=>{await auth.update(a.id,{active:!a.active});await reloadAccounts();}}>{a.active?'Suspender':'Activar'}</button>
+      <button className="underline" onClick={async()=>{const password=window.prompt('Nueva contraseña (mínimo 12 caracteres)');if(password){try{await auth.update(a.id,{password});alert('Contraseña actualizada');}catch(e:any){alert(e.message);}}}}>Cambiar contraseña</button>
+      <button className="underline text-red-700" onClick={async()=>{if(window.confirm('¿Eliminar usuario?')){await auth.remove(a.id);await reloadAccounts();}}}>Eliminar</button></>}</div>)}
+    </section>}
+  </div>;
   // 3. Editor View
   if (currentView === 'editor' && editingProject) {
     return (
-      <ProjectEditor
+      <><div className="flex justify-end gap-3 p-2 bg-white"><span className="text-xs">{user?.username}</span><button onClick={async()=>{await auth.logout();setUser(null);setEditingProject(null);setCurrentView('dashboard');}} className="text-xs underline">Cerrar sesión</button></div><ProjectEditor
         project={editingProject}
         onBack={() => {
           setEditingProject(null);
@@ -146,7 +182,7 @@ export default function App() {
         onSaveComplete={(updated) => {
           setProjects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
         }}
-      />
+      /></>
     );
   }
 
