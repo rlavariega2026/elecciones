@@ -557,15 +557,20 @@ export default function App() {
                 onPublishToggle={handlePublishToggle}
                   onPublishDemo={handlePublishDemo}
                 onShowQr={(p) => setActiveQrProject(p)}
-                onSaveAsTemplate={() => {
-                  api.saveTemplate({
-                    name: `Plantilla ${project.candidate.shortName}`,
-                    designFamily: project.designFamily,
-                    variantId: project.variantId,
-                    palette: project.palette,
-                    typography: project.typography,
-                  });
-                  alert('Plantilla guardada en el Estudio de Diseño');
+                onSaveAsTemplate={async () => {
+                  const name = window.prompt('Nombre para guardar esta plantilla:', `Plantilla ${project.candidate.shortName}`);
+                  if (!name?.trim()) return;
+                  try {
+                    const result = await api.saveTemplate({
+                      name: name.trim(),
+                      designFamily: project.designFamily,
+                      variantId: project.variantId,
+                      palette: project.palette,
+                      typography: project.typography,
+                    });
+                    if (!result.success) throw new Error('No se pudo guardar la plantilla');
+                    alert('Plantilla guardada: ' + name.trim());
+                  } catch (e: any) { alert(e.message || 'Error al guardar la plantilla'); }
                 }}
                 onViewPublic={(p) => {
                   window.open(`/elecciones/${p.slug}/`, '_blank', 'noopener,noreferrer');
