@@ -90,11 +90,11 @@ export const api = {
     return res.json();
   },
 
-  async publishProject(id: string, slug?: string): Promise<{ success: boolean; project: Project }> {
+  async publishProject(id: string, slug?: string, demo = false): Promise<{ success: boolean; project: Project }> {
     const res = await fetch(`${BASE_API}/projects/${id}/publish`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slug }),
+      body: JSON.stringify({ slug, demo }),
     });
     if (!res.ok) {
       const err = await res.json();
