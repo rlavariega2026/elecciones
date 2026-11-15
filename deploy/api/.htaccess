@@ -1,0 +1,7 @@
+Options -Indexes
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /elecciones/api/
+RewriteRule ^index\.php$ - [L]
+RewriteRule ^ index.php [QSA,L]
+</IfModule>
