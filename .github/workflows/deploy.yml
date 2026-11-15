@@ -1,0 +1,43 @@
+name: Deploy Elecciones to lavdigitalagency.com
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: elecciones-production
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: TypeScript check
+        run: npm run lint
+      - name: Build
+        run: npm run build
+      - name: Include PHP API and Apache rules
+        run: |
+          mkdir -p dist/api
+          cp deploy/.htaccess dist/.htaccess
+          cp deploy/api/.htaccess dist/api/.htaccess
+          cp deploy/api/index.php dist/api/index.php
+          cp deploy/manifest.webmanifest dist/manifest.webmanifest
+          cp deploy/logo-lav.svg dist/logo-lav.svg
+      - name: Deploy to Hostinger (only /elecciones/)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT || '21' }}
+          protocol: ftp
+          local-dir: ./dist/
+          server-dir: /public_html/elecciones/
+          dangerous-clean-slate: false
