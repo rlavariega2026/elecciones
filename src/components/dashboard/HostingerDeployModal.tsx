@@ -16,8 +16,8 @@ export const HostingerDeployModal: React.FC<HostingerDeployModalProps> = ({ onCl
   };
 
   const htaccessCode = `# LAV Política Digital — Hostinger Apache / LiteSpeed Configuration
-# Ubicación: lavdigitalmkt.com/public_html/elecciones/.htaccess
-# Base URL: https://lavdigitalmkt.com/elecciones/
+# Ubicación: lavdigitalagency.com/public_html/elecciones/.htaccess
+# Base URL: https://lavdigitalagency.com/elecciones/
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
@@ -88,13 +88,13 @@ jobs:
       - name: Desplegar por FTP a Hostinger
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: \${{ secrets.HOSTINGER_FTP_SERVER }}
-          username: \${{ secrets.HOSTINGER_FTP_USERNAME }}
-          password: \${{ secrets.HOSTINGER_FTP_PASSWORD }}
+          server: \${{ secrets.FTP_SERVER }}
+          username: \${{ secrets.FTP_USERNAME }}
+          password: \${{ secrets.FTP_PASSWORD }}
           protocol: ftp
           port: 21
           local-dir: ./dist/
-          server-dir: public_html/elecciones/
+          server-dir: /public_html/elecciones/
           dangerous-clean-slate: false
 `;
 
@@ -112,7 +112,7 @@ jobs:
                 Centro de Despliegue — LAV Digital MKT en Hostinger
               </h3>
               <p className="text-xs text-slate-500">
-                Configuración y automatización para <span className="font-mono text-slate-700">lavdigitalmkt.com/elecciones/</span>
+                Configuración y automatización para <span className="font-mono text-slate-700">lavdigitalagency.com/elecciones/</span>
               </p>
             </div>
           </div>
@@ -178,7 +178,7 @@ jobs:
                   Estructura Exacta del Servidor en Hostinger
                 </h4>
                 <p className="text-slate-600 leading-relaxed">
-                  Para que la aplicación funcione en armonía con su sitio web principal (<strong>lavdigitalmkt.com</strong>) sin modificar otras aplicaciones ni carpetas del dominio, el propietario solo debe verificar que exista la carpeta:
+                  Para que la aplicación funcione en armonía con su sitio web principal (<strong>lavdigitalagency.com</strong>) sin modificar otras aplicaciones ni carpetas del dominio, el propietario solo debe verificar que exista la carpeta:
                 </p>
                 <div className="p-3 bg-slate-900 text-emerald-400 font-mono rounded-lg">
                   /public_html/elecciones/
@@ -186,11 +186,11 @@ jobs:
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
                   <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
                     <span className="font-bold text-slate-800 block mb-1">Ruta Pública Base:</span>
-                    <span className="font-mono text-slate-600">https://lavdigitalmkt.com/elecciones/</span>
+                    <span className="font-mono text-slate-600">https://lavdigitalagency.com/elecciones/</span>
                   </div>
                   <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
                     <span className="font-bold text-slate-800 block mb-1">Ejemplo de Publicación:</span>
-                    <span className="font-mono text-slate-600">https://lavdigitalmkt.com/elecciones/jorge-meade/</span>
+                    <span className="font-mono text-slate-600">https://lavdigitalagency.com/elecciones/jorge-meade/</span>
                   </div>
                 </div>
               </div>
@@ -250,7 +250,7 @@ jobs:
                   </h4>
                   <p className="text-slate-500">
                     Colocar en:{' '}
-                    <span className="font-mono text-slate-700">lavdigitalmkt.com/public_html/elecciones/.htaccess</span>
+                    <span className="font-mono text-slate-700">lavdigitalagency.com/public_html/elecciones/.htaccess</span>
                   </p>
                 </div>
                 <button
@@ -284,21 +284,21 @@ jobs:
 
                 <div className="space-y-3 pt-2">
                   <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <span className="font-mono font-bold text-slate-900 block">HOSTINGER_FTP_SERVER</span>
+                    <span className="font-mono font-bold text-slate-900 block">FTP_SERVER</span>
                     <span className="text-slate-600 text-[11px]">
-                      La dirección IP o nombre de host FTP que proporciona Hostinger en hPanel (ej. <code className="font-mono">ftp.lavdigitalmkt.com</code> o IP del servidor).
+                      La dirección IP o nombre de host FTP que proporciona Hostinger en hPanel (ej. <code className="font-mono">ftp.lavdigitalagency.com</code> o IP del servidor).
                     </span>
                   </div>
 
                   <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <span className="font-mono font-bold text-slate-900 block">HOSTINGER_FTP_USERNAME</span>
+                    <span className="font-mono font-bold text-slate-900 block">FTP_USERNAME</span>
                     <span className="text-slate-600 text-[11px]">
                       Usuario FTP con acceso restringido a <code className="font-mono">public_html/elecciones/</code>.
                     </span>
                   </div>
 
                   <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <span className="font-mono font-bold text-slate-900 block">HOSTINGER_FTP_PASSWORD</span>
+                    <span className="font-mono font-bold text-slate-900 block">FTP_PASSWORD</span>
                     <span className="text-slate-600 text-[11px]">
                       Contraseña segura generada para la cuenta FTP.
                     </span>
