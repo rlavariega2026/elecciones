@@ -199,7 +199,7 @@ export default function App() {
   };
 
   const handlePublishDemo = async (project: Project) => {
-    if (project.status === 'publicado' && !project.meta?.demo && !window.confirm('¿Reemplazar la versión definitiva por una DEMO en la misma URL?')) return;
+    if (project.status === 'publicado' && !(project.meta as any)?.demo && !window.confirm('¿Reemplazar la versión definitiva por una DEMO en la misma URL?')) return;
     try {
       const res = await api.publishProject(project.id, project.slug, true);
       if (res.success) setProjects(prev => prev.map(p => p.id === project.id ? res.project : p));
@@ -208,7 +208,7 @@ export default function App() {
 
   const handlePublishToggle = async (project: Project) => {
     try {
-      if (project.status === 'publicado' && !project.meta?.demo) {
+      if (project.status === 'publicado' && !(project.meta as any)?.demo) {
         const res = await api.unpublishProject(project.id);
         if (res.success) {
           setProjects(projects.map((p) => (p.id === project.id ? res.project : p)));
