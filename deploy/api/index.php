@@ -21,6 +21,70 @@ function saveDb($db){global $dbPath;$fp=fopen($dbPath.'.lock','c');if(!$fp||!flo
 function findIndex($projects,$id){foreach($projects as $i=>$p)if(($p['id']??'')===$id)return $i;return -1;}
 function reserved($s){return in_array($s,['api','admin','elecciones','assets','dashboard','public','login','register','settings','index','favicon','robots','sitemap'],true);}
 function uniqueSlug($db,$s,$except=''){foreach($db['projects'] as $p)if(($p['slug']??'')===$s&&($p['id']??'')!==$except)return false;return !reserved($s);}
+
+function authDbPath(){global $dataDir;return $dataDir.'/users.json';}
+function readUsers(){
+ $file=authDbPath();
+ if(!is_file($file)){
+  $initial=['users'=>[['id'=>'admin-lavariega','username'=>'lavariega','passwordHash'=>'$2y$12$a4gUwBW2SkaV7KZBOnlJke4xmI649nIhQujrRg1LDURJMjylFbPMC','role'=>'superadmin','active'=>true]]];
+  $fp=fopen($file,'x');if($fp){fwrite($fp,json_encode($initial));fclose($fp);chmod($file,0600);}
+ }
+ $db=json_decode(@file_get_contents($file),true);
+ return is_array($db)?$db:['users'=>[]];
+}
+function saveUsers($db){$file=authDbPath();$temp=$file.'.'.bin2hex(random_bytes(5)).'.tmp';file_put_contents($temp,json_encode($db));chmod($temp,0600);rename($temp,$file);}
+function startAuthSession(){
+ if(session_status()!==PHP_SESSION_ACTIVE){
+  session_name('LAVELECTIONSSID');
+  session_set_cookie_params(['lifetime'=>0,'path'=>'/elecciones/','secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','httponly'=>true,'samesite'=>'Lax']);
+  ini_set('session.use_strict_mode','1');
+  session_start();
+ }
+}
+function currentUser(){
+ startAuthSession();$id=$_SESSION['user_id']??null;if(!$id)return null;
+ foreach(readUsers()['users'] as $u)if($u['id']===$id&&!empty($u['active']))return ['id'=>$u['id'],'username'=>$u['username'],'role'=>$u['role']];
+ return null;
+}
+function requireUser($admin=false){$u=currentUser();if(!$u)out(['success'=>false,'message'=>'Inicia sesión'],401);if($admin&&$u['role']!=='superadmin')out(['success'=>false,'message'=>'Solo el administrador universal puede gestionar usuarios'],403);return $u;}
+function csrfCheck(){startAuthSession();$token=$_SERVER['HTTP_X_CSRF_TOKEN']??'';if(!is_string($token)||!hash_equals($_SESSION['csrf']??'', $token))out(['success'=>false,'message'=>'Sesión inválida. Actualiza la página.'],403);}
+if($path==='/auth/login'&&$method==='POST'){
+ $b=body();$username=(string)($b['username']??'');$password=(string)($b['password']??'');
+ $db=readUsers();$found=null;foreach($db['users'] as $u)if(hash_equals($u['username'],$username)){$found=$u;break;}
+ if(!$found||empty($found['active'])||!password_verify($password,$found['passwordHash'])){usleep(300000);out(['success'=>false,'message'=>'Credenciales incorrectas'],401);}
+ startAuthSession();session_regenerate_id(true);$_SESSION['user_id']=$found['id'];$_SESSION['csrf']=bin2hex(random_bytes(24));
+ out(['success'=>true,'user'=>['id'=>$found['id'],'username'=>$found['username'],'role'=>$found['role']],'csrf'=>$_SESSION['csrf']]);
+}
+if($path==='/auth/me'&&$method==='GET'){$u=currentUser();if(!$u)out(['success'=>false],401);if(empty($_SESSION['csrf']))$_SESSION['csrf']=bin2hex(random_bytes(24));out(['success'=>true,'user'=>$u,'csrf'=>$_SESSION['csrf']]);}
+if($path==='/auth/logout'&&$method==='POST'){requireUser();csrfCheck();$_SESSION=[];session_destroy();out(['success'=>true]);}
+if($path==='/users'&&$method==='GET'){requireUser(true);$users=array_map(fn($u)=>['id'=>$u['id'],'username'=>$u['username'],'role'=>$u['role'],'active'=>$u['active']],readUsers()['users']);out(['success'=>true,'users'=>$users]);}
+if($path==='/users'&&$method==='POST'){
+ requireUser(true);csrfCheck();$b=body();$name=trim((string)($b['username']??''));$pass=(string)($b['password']??'');
+ if(!preg_match('/^[a-zA-Z0-9_.-]{3,40}$/',$name)||strlen($pass)<12)out(['success'=>false,'message'=>'Usuario válido y contraseña de mínimo 12 caracteres'],400);
+ $db=readUsers();foreach($db['users'] as $u)if(strcasecmp($u['username'],$name)===0)out(['success'=>false,'message'=>'Usuario existente'],409);
+ $db['users'][]=['id'=>bin2hex(random_bytes(12)),'username'=>$name,'passwordHash'=>password_hash($pass,PASSWORD_DEFAULT),'role'=>'editor','active'=>true];saveUsers($db);out(['success'=>true]);
+}
+if(preg_match('~^/users/([a-f0-9]{24})$~',$path,$m)&&$method==='PATCH'){
+ requireUser(true);csrfCheck();$b=body();$db=readUsers();
+ foreach($db['users'] as &$u)if($u['id']===$m[1]&&$u['role']!=='superadmin'){
+  if(isset($b['active']))$u['active']=(bool)$b['active'];
+  if(isset($b['password'])){if(strlen((string)$b['password'])<12)out(['success'=>false,'message'=>'Contraseña demasiado corta'],400);$u['passwordHash']=password_hash($b['password'],PASSWORD_DEFAULT);}
+  saveUsers($db);out(['success'=>true]);
+ }unset($u);out(['success'=>false,'message'=>'Usuario no encontrado o protegido'],404);
+}
+if(preg_match('~^/users/([a-f0-9]{24})$~',$path,$m)&&$method==='DELETE'){
+ requireUser(true);csrfCheck();$db=readUsers();$before=count($db['users']);$db['users']=array_values(array_filter($db['users'],fn($u)=>$u['id']!==$m[1]||$u['role']==='superadmin'));
+ if(count($db['users'])===$before)out(['success'=>false,'message'=>'Usuario no encontrado o protegido'],404);
+ saveUsers($db);out(['success'=>true]);
+}
+// Public publications and anonymous citizen submissions stay accessible.
+$publicRead=($method==='GET'&&preg_match('~^/projects/by-slug/[^/]+$~',$path));
+$publicWrite=($method==='POST'&&$path==='/citizen-inquiries');
+if(!$publicRead&&!$publicWrite){
+ requireUser();
+ if(!in_array($method,['GET','HEAD','OPTIONS'],true))csrfCheck();
+}
+
 $db=readDb();
 
 // Chunked media storage: avoids browser localStorage and PHP single-request upload limits.
