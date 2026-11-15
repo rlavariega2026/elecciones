@@ -22,6 +22,34 @@ function findIndex($projects,$id){foreach($projects as $i=>$p)if(($p['id']??'')=
 function reserved($s){return in_array($s,['api','admin','elecciones','assets','dashboard','public','login','register','settings','index','favicon','robots','sitemap'],true);}
 function uniqueSlug($db,$s,$except=''){foreach($db['projects'] as $p)if(($p['slug']??'')===$s&&($p['id']??'')!==$except)return false;return !reserved($s);}
 $db=readDb();
+
+// Chunked media storage: avoids browser localStorage and PHP single-request upload limits.
+if($path==='/media/chunk'&&$method==='POST'){
+  $b=body();$uploadId=(string)($b['uploadId']??'');$index=$b['index']??null;$data=$b['data']??null;
+  if(!preg_match('/^[a-zA-Z0-9_-]{12,100}$/',$uploadId)||!is_int($index)||$index<0||!is_string($data))out(['success'=>false,'message'=>'Bloque inválido'],400);
+  $bytes=base64_decode($data,true);
+  if($bytes===false||strlen($bytes)>1500000)out(['success'=>false,'message'=>'Bloque demasiado grande'],400);
+  $folder=$dataDir.'/uploads-tmp';if(!is_dir($folder))mkdir($folder,0750,true);
+  if(!file_exists($folder.'/.htaccess'))file_put_contents($folder.'/.htaccess',"Require all denied\n");
+  $file=$folder.'/'.$uploadId.'.part';
+  $fp=fopen($file,$index===0?'wb':'ab');if(!$fp||!flock($fp,LOCK_EX))out(['success'=>false],500);
+  fwrite($fp,$bytes);flock($fp,LOCK_UN);fclose($fp);
+  out(['success'=>true]);
+}
+if($path==='/media/finish'&&$method==='POST'){
+  $b=body();$id=(string)($b['uploadId']??'');$type=(string)($b['mime']??'');
+  if(!preg_match('/^[a-zA-Z0-9_-]{12,100}$/',$id))out(['success'=>false],400);
+  $extensions=['image/jpeg'=>'jpg','image/png'=>'png','image/webp'=>'webp','image/gif'=>'gif','image/avif'=>'avif'];
+  if(!isset($extensions[$type]))out(['success'=>false,'message'=>'Formato de imagen no admitido'],400);
+  $part=$dataDir.'/uploads-tmp/'.$id.'.part';
+  if(!is_file($part))out(['success'=>false,'message'=>'Archivo incompleto'],400);
+  $actual=(new finfo(FILEINFO_MIME_TYPE))->file($part);
+  if($actual!==$type)out(['success'=>false,'message'=>'El archivo no coincide con su formato'],400);
+  $dir=$root.'/media';if(!is_dir($dir))mkdir($dir,0755,true);
+  $filename=$id.'.'.$extensions[$type];if(!rename($part,$dir.'/'.$filename))out(['success'=>false],500);
+  out(['success'=>true,'url'=>'/elecciones/media/'.$filename]);
+}
+
 if($path==='/projects'&&$method==='GET'){$items=$db['projects'];foreach(['status','category','partyId'] as $k)if(isset($_GET[$k])&&$_GET[$k]!=='todos')$items=array_values(array_filter($items,fn($p)=>($p[$k]??'')===$_GET[$k]));if(!empty($_GET['search'])){$q=mb_strtolower($_GET['search']);$items=array_values(array_filter($items,fn($p)=>str_contains(mb_strtolower(json_encode($p,JSON_UNESCAPED_UNICODE)),$q)));}out(['success'=>true,'count'=>count($items),'projects'=>$items]);}
 if($path==='/projects/check-slug'&&$method==='GET'){$s=slug($_GET['slug']??'');$ok=strlen($s)>=3&&uniqueSlug($db,$s,$_GET['currentId']??'');out(['valid'=>$ok,'slug'=>$s,'url'=>$ok?publicUrl($s):null,'message'=>$ok?'Dirección disponible':'Dirección no disponible']);}
 if($path==='/projects'&&$method==='POST'){$p=body();if(empty($p['internalName'])||empty($p['candidate']['fullName']))out(['success'=>false,'message'=>'Nombre interno y candidato requeridos'],400);$s=slug($p['slug']??$p['candidate']['shortName']??$p['internalName']);if(strlen($s)<3)$s='proyecto-'.time();$base=$s;$n=1;while(!uniqueSlug($db,$s))$s=$base.'-'.$n++;$p['id']=$p['id']??uniqid('proj-',true);$p['slug']=$s;$p['previousSlugs']=[];$p['status']=$p['status']??'borrador';$p['meta']=array_replace(['createdAt'=>gmdate('c'),'updatedAt'=>gmdate('c'),'viewsCount'=>0,'clicksCount'=>0,'qrScansCount'=>0,'inquiriesCount'=>0],$p['meta']??[]);$db['projects'][]=$p;saveDb($db);out(['success'=>true,'project'=>$p],201);}
