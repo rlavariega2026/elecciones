@@ -379,7 +379,7 @@ export default function App() {
   };
 
   const handleExportBackup = () => {
-    window.open('/api/backup/export', '_blank');
+    window.open('/elecciones/api/backup/export', '_blank');
   };
 
   const handleImportBackup = () => {
@@ -568,7 +568,7 @@ export default function App() {
                   alert('Plantilla guardada en el Estudio de Diseño');
                 }}
                 onViewPublic={(p) => {
-                  window.location.hash = `#/p/${p.slug}`;
+                  window.open(`/elecciones/${p.slug}/`, '_blank', 'noopener,noreferrer');
                 }}
               />
             ))}
