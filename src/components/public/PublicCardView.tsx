@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Project, SlateMember } from '../../types';
 import { api } from '../../services/api';
 import { downloadVCard } from '../../utils/vcard';
@@ -36,6 +36,20 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
 
+  const [fullscreenHint,setFullscreenHint]=useState(false);
+  useEffect(()=>{
+    if(!isStandalone)return;
+    const viewport=document.querySelector('meta[name="viewport"]');
+    if(viewport)viewport.setAttribute('content','width=device-width,initial-scale=1,viewport-fit=cover');
+  },[isStandalone]);
+  const enterFullscreen=async(e:React.MouseEvent<HTMLDivElement>)=>{
+    if(!isStandalone || document.fullscreenElement)return;
+    const target=e.target as HTMLElement;
+    if(target.closest('button,a,input,textarea,select,label,[role="button"],[contenteditable="true"]'))return;
+    if(!document.documentElement.requestFullscreen){setFullscreenHint(true);return;}
+    try{await document.documentElement.requestFullscreen();setFullscreenHint(false);}
+    catch{setFullscreenHint(true);}
+  };
   // Form states
   const [citizenName, setCitizenName] = useState('');
   const [citizenEmail, setCitizenEmail] = useState('');
@@ -119,7 +133,8 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
 
   return (
     <div
-      className="min-h-full w-full transition-colors pb-16 selection:bg-rose-600 selection:text-white"
+      onClick={enterFullscreen}
+      className="min-h-[100dvh] w-full transition-colors pb-16 selection:bg-rose-600 selection:text-white"
       style={{
         backgroundColor: palette.background || '#F8FAFC',
         color: palette.text || '#0F172A',
@@ -135,6 +150,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
           </div>
         </div>
       )}
+      {isStandalone && fullscreenHint && <div className="fixed bottom-3 left-3 right-3 z-[100] mx-auto max-w-sm bg-slate-900 text-white text-xs p-3 rounded-xl shadow-lg flex gap-3 items-center"><span>Este navegador no permite pantalla completa desde esta página. Puedes instalarla en la pantalla de inicio para verla sin barras cuando sea compatible.</span><button onClick={e=>{e.stopPropagation();setFullscreenHint(false);}} aria-label="Cerrar aviso" className="shrink-0 underline">Cerrar</button></div>}
       {/* Top Banner / Emblems Strip */}
       <header className="w-full bg-white/80 backdrop-blur border-b border-slate-200/60 sticky top-0 z-30 px-4 py-2.5">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
