@@ -53,7 +53,7 @@ jobs:
               print('NOT ACCESSIBLE',p,str(e)[:140]);ftp.cwd('/')
           ftp.quit()
           PY
-      - name: Deploy to Hostinger (only /elecciones/)
+      - name: Deploy to actual domain document root
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -62,5 +62,26 @@ jobs:
           port: ${{ secrets.FTP_PORT || '21' }}
           protocol: ftp
           local-dir: ./dist/
-          server-dir: /elecciones/
+          server-dir: /domains/lavdigitalagency.com/public_html/elecciones/
           dangerous-clean-slate: false
+
+      - name: Verify deployed index in actual domain directory
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_PORT: ${{ secrets.FTP_PORT || '21' }}
+        run: |
+          python3 - <<'PY'
+          import ftplib,os
+          f=ftplib.FTP()
+          f.connect(os.environ['FTP_SERVER'].removeprefix('ftp://'),int(os.environ['FTP_PORT']),timeout=25)
+          f.login(os.environ['FTP_USERNAME'],os.environ['FTP_PASSWORD'])
+          target='/domains/lavdigitalagency.com/public_html/elecciones/'
+          f.cwd(target)
+          names=f.nlst()
+          print('Verified target:',target,'files:',names)
+          if 'index.html' not in [x.rsplit('/',1)[-1] for x in names]:
+              raise SystemExit('DEPLOYMENT FAILED: index.html absent from domain target')
+          f.quit()
+          PY
