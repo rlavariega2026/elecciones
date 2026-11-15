@@ -1,6 +1,19 @@
 import { Project, CitizenInquiry, AnalyticsSummary } from '../types';
 
 const BASE_API = '/elecciones/api';
+let csrfToken = '';
+export type AuthUser = {id:string;username:string;role:'superadmin'|'editor'};
+export const auth = {
+ async me(){const r=await fetch(BASE_API+'/auth/me');if(!r.ok)return null;const d=await r.json();csrfToken=d.csrf;return d.user as AuthUser;},
+ async login(username:string,password:string){const r=await fetch(BASE_API+'/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});const d=await r.json();if(!r.ok)throw new Error(d.message);csrfToken=d.csrf;return d.user as AuthUser;},
+ async logout(){await fetch(BASE_API+'/auth/logout',{method:'POST',headers:{'X-CSRF-Token':csrfToken}});csrfToken='';},
+ async users(){const r=await fetch(BASE_API+'/users');if(!r.ok)throw new Error('Acceso denegado');return (await r.json()).users as Array<AuthUser&{active:boolean}>;},
+ async create(username:string,password:string){const r=await fetch(BASE_API+'/users',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':csrfToken},body:JSON.stringify({username,password})});if(!r.ok)throw new Error((await r.json()).message);},
+ async update(id:string,changes:{active?:boolean;password?:string}){const r=await fetch(BASE_API+'/users/'+id,{method:'PATCH',headers:{'Content-Type':'application/json','X-CSRF-Token':csrfToken},body:JSON.stringify(changes)});if(!r.ok)throw new Error((await r.json()).message);},
+ async remove(id:string){const r=await fetch(BASE_API+'/users/'+id,{method:'DELETE',headers:{'X-CSRF-Token':csrfToken}});if(!r.ok)throw new Error((await r.json()).message);}
+};
+const protectedFetch: typeof fetch = (input, init) => fetch(input,{...init,headers:{...((init?.headers as Record<string,string>)||{}),...(init?.method && !['GET','HEAD'].includes(init.method.toUpperCase())?{'X-CSRF-Token':csrfToken}:{})}});
+
 
 
 /** Transfer original image bytes in small chunks; no recompression or fixed app-side photo count. */
@@ -58,13 +71,13 @@ export const api = {
     if (filters?.search) params.append('search', filters.search);
     if (filters?.partyId) params.append('partyId', filters.partyId);
 
-    const res = await fetch(`${BASE_API}/projects?${params.toString()}`);
+    const res = await protectedFetch(`${BASE_API}/projects?${params.toString()}`);
     if (!res.ok) throw new Error('Error al obtener proyectos');
     return res.json();
   },
 
   async getProject(id: string): Promise<{ success: boolean; project: Project }> {
-    const res = await fetch(`${BASE_API}/projects/${id}`);
+    const res = await protectedFetch(`${BASE_API}/projects/${id}`);
     if (!res.ok) throw new Error('Proyecto no encontrado');
     return res.json();
   },
@@ -75,7 +88,7 @@ export const api = {
     isRedirect?: boolean;
     currentSlug?: string;
   }> {
-    const res = await fetch(`${BASE_API}/projects/by-slug/${slug}`);
+    const res = await protectedFetch(`${BASE_API}/projects/by-slug/${slug}`);
     if (!res.ok) throw new Error('Tarjeta política no encontrada');
     return res.json();
   },
@@ -86,12 +99,12 @@ export const api = {
   ): Promise<{ valid: boolean; slug: string; url?: string; message: string }> {
     const params = new URLSearchParams({ slug });
     if (currentId) params.append('currentId', currentId);
-    const res = await fetch(`${BASE_API}/projects/check-slug?${params.toString()}`);
+    const res = await protectedFetch(`${BASE_API}/projects/check-slug?${params.toString()}`);
     return res.json();
   },
 
   async createProject(project: Partial<Project>): Promise<{ success: boolean; project: Project }> {
-    const res = await fetch(`${BASE_API}/projects`, {
+    const res = await protectedFetch(`${BASE_API}/projects`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(project),
@@ -104,7 +117,7 @@ export const api = {
   },
 
   async updateProject(id: string, project: Partial<Project>): Promise<{ success: boolean; project: Project }> {
-    const res = await fetch(`${BASE_API}/projects/${id}`, {
+    const res = await protectedFetch(`${BASE_API}/projects/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(project),
@@ -117,7 +130,7 @@ export const api = {
   },
 
   async duplicateProject(id: string): Promise<{ success: boolean; project: Project }> {
-    const res = await fetch(`${BASE_API}/projects/${id}/duplicate`, {
+    const res = await protectedFetch(`${BASE_API}/projects/${id}/duplicate`, {
       method: 'POST',
     });
     if (!res.ok) throw new Error('Error al duplicar proyecto');
@@ -125,7 +138,7 @@ export const api = {
   },
 
   async deleteProject(id: string): Promise<{ success: boolean; message: string }> {
-    const res = await fetch(`${BASE_API}/projects/${id}`, {
+    const res = await protectedFetch(`${BASE_API}/projects/${id}`, {
       method: 'DELETE',
     });
     if (!res.ok) throw new Error('Error al eliminar proyecto');
@@ -133,7 +146,7 @@ export const api = {
   },
 
   async publishProject(id: string, slug?: string, demo = false): Promise<{ success: boolean; project: Project }> {
-    const res = await fetch(`${BASE_API}/projects/${id}/publish`, {
+    const res = await protectedFetch(`${BASE_API}/projects/${id}/publish`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ slug, demo }),
@@ -146,7 +159,7 @@ export const api = {
   },
 
   async unpublishProject(id: string): Promise<{ success: boolean; project: Project }> {
-    const res = await fetch(`${BASE_API}/projects/${id}/unpublish`, {
+    const res = await protectedFetch(`${BASE_API}/projects/${id}/unpublish`, {
       method: 'POST',
     });
     if (!res.ok) throw new Error('Error al despublicar');
@@ -160,7 +173,7 @@ export const api = {
     buttonId?: string
   ): Promise<void> {
     try {
-      await fetch(`${BASE_API}/analytics/event`, {
+      await protectedFetch(`${BASE_API}/analytics/event`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -176,7 +189,7 @@ export const api = {
   },
 
   async getAnalytics(): Promise<{ success: boolean; summary: AnalyticsSummary }> {
-    const res = await fetch(`${BASE_API}/analytics`);
+    const res = await protectedFetch(`${BASE_API}/analytics`);
     if (!res.ok) throw new Error('Error al obtener analíticas');
     return res.json();
   },
@@ -192,7 +205,7 @@ export const api = {
     message: string;
     privacyAccepted: boolean;
   }): Promise<{ success: boolean; folio: string; message: string; inquiry: CitizenInquiry }> {
-    const res = await fetch(`${BASE_API}/citizen-inquiries`, {
+    const res = await protectedFetch(`${BASE_API}/citizen-inquiries`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -212,7 +225,7 @@ export const api = {
     if (filters?.projectId) params.append('projectId', filters.projectId);
     if (filters?.status) params.append('status', filters.status);
 
-    const res = await fetch(`${BASE_API}/citizen-inquiries?${params.toString()}`);
+    const res = await protectedFetch(`${BASE_API}/citizen-inquiries?${params.toString()}`);
     if (!res.ok) throw new Error('Error al obtener solicitudes ciudadanas');
     return res.json();
   },
@@ -221,7 +234,7 @@ export const api = {
     id: string,
     data: { status?: 'nuevo' | 'en_proceso' | 'atendido'; notes?: string }
   ): Promise<{ success: boolean; inquiry: CitizenInquiry }> {
-    const res = await fetch(`${BASE_API}/citizen-inquiries/${id}`, {
+    const res = await protectedFetch(`${BASE_API}/citizen-inquiries/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -239,7 +252,7 @@ export const api = {
     palette: any;
     typography: any;
   }): Promise<{ success: boolean; template: any }> {
-    const res = await fetch(`${BASE_API}/templates`, {
+    const res = await protectedFetch(`${BASE_API}/templates`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(template),
@@ -249,7 +262,7 @@ export const api = {
   },
 
   async getTemplates(): Promise<{ success: boolean; templates: any[] }> {
-    const res = await fetch(`${BASE_API}/templates`);
+    const res = await protectedFetch(`${BASE_API}/templates`);
     if (!res.ok) throw new Error('Error al obtener plantillas');
     return res.json();
   },
@@ -263,7 +276,7 @@ export const api = {
     municipality?: string;
     party?: string;
   }): Promise<{ success: boolean; task: string; result: string; originalText: string }> {
-    const res = await fetch(`${BASE_API}/gemini/assist`, {
+    const res = await protectedFetch(`${BASE_API}/gemini/assist`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(params),
@@ -277,7 +290,7 @@ export const api = {
 
   // Backups
   async restoreBackup(backupData: any): Promise<{ success: boolean; message: string }> {
-    const res = await fetch(`${BASE_API}/backup/restore`, {
+    const res = await protectedFetch(`${BASE_API}/backup/restore`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(backupData),
