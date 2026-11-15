@@ -253,7 +253,7 @@ app.get('/api/projects/check-slug', (req, res) => {
   return res.json({
     valid: true,
     slug,
-    url: `https://lavdigitalmkt.com/elecciones/${slug}/`,
+    url: `https://lavdigitalagency.com/elecciones/${slug}/`,
     message: 'Dirección pública disponible',
   });
 });
@@ -424,7 +424,7 @@ app.post('/api/projects/:id/publish', (req, res) => {
   project.slug = requestedSlug;
   project.status = 'publicado';
   project.meta.publishedAt = new Date().toISOString();
-  project.meta.publishedUrl = `https://lavdigitalmkt.com/elecciones/${project.slug}/`;
+  project.meta.publishedUrl = `https://lavdigitalagency.com/elecciones/${project.slug}/`;
   project.meta.updatedAt = new Date().toISOString();
 
   saveDatabase();
