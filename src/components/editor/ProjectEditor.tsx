@@ -57,7 +57,10 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
   const [showQrModal, setShowQrModal] = useState(false);
   const [showPublishPanel, setShowPublishPanel] = useState(false);
   const [clientFolder, setClientFolder] = useState(() => (initialProject.meta as any)?.clientFolder || '');
-  const [publicationFolder, setPublicationFolder] = useState(initialProject.slug);
+  const [publicationFolder, setPublicationFolder] = useState(() => {
+    const prefix = clientFolder ? clientFolder + '-' : '';
+    return prefix && initialProject.slug.startsWith(prefix) ? initialProject.slug.slice(prefix.length) : initialProject.slug;
+  });
   const [copiedLink, setCopiedLink] = useState(false);
   const normalized = (value: string) => value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '');
   const fullSlug = [normalized(clientFolder), normalized(publicationFolder)].filter(Boolean).join('-');
@@ -70,6 +73,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
       ...fields,
       meta: {
         ...prev.meta,
+        ...fields.meta,
         updatedAt: new Date().toISOString(),
       },
     }));
@@ -105,6 +109,13 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
         internalName: name.trim(),
         slug: normalized(name) + '-' + Date.now().toString(36),
         status: 'borrador',
+        previousSlugs: [],
+        meta: {
+          sectionsManaged: ready.meta.sectionsManaged,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          viewsCount: 0, clicksCount: 0, qrScansCount: 0, inquiriesCount: 0,
+        },
       } as any);
       if (!res.success) throw new Error('No se pudo crear la copia');
       alert('Copia independiente guardada: ' + name.trim());
@@ -223,7 +234,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => setShowQrModal(true)}
             className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors hidden sm:block"

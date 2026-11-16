@@ -19,34 +19,40 @@ const protectedFetch: typeof fetch = (input, init) => fetch(input,{...init,heade
 /** Transfer original image bytes in small chunks; no recompression or fixed app-side photo count. */
 export async function persistProjectImages<T>(value: T): Promise<T> {
   const cache = new Map<string,string>();
+  const request = async (path: string, payload: object) => {
+    const response = await protectedFetch(BASE_API + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const result = await response.json().catch(() => null);
+    if (!response.ok || !result?.success) throw new Error(result?.message || `Hostinger respondió HTTP ${response.status}`);
+    return result;
+  };
   const transfer = async (dataUrl: string): Promise<string> => {
     if (cache.has(dataUrl)) return cache.get(dataUrl)!;
     const match = /^data:(image\/(?:jpeg|png|webp|gif|avif));base64,(.*)$/s.exec(dataUrl);
     if (!match) return dataUrl;
     const mime = match[1];
-    const binary = atob(match[2]);
+    const originalBase64 = match[2];
     const id = 'lav' + Date.now().toString(36) + Math.random().toString(36).slice(2,16);
-    const chunkSize = 700000;
-    for (let i=0,offset=0;offset<binary.length;i++,offset+=chunkSize) {
-      const part = btoa(binary.slice(offset,offset+chunkSize));
-      const response = await fetch(`${BASE_API}/media/chunk`, {
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({uploadId:id,index:i,data:part}),
-      });
-      if (!response.ok) throw new Error('Error al subir la fotografía (bloque '+(i+1)+')');
+    const chunkSize = 320000; // Base64 boundary: 240 kB of original bytes.
+    for (let i=0,offset=0;offset<originalBase64.length;i++,offset+=chunkSize) {
+      const part = originalBase64.slice(offset,offset+chunkSize);
+      try {
+        await request('/media/chunk', { uploadId: id, index: i, data: part });
+      } catch (error) {
+        throw new Error(`Fotografía, bloque ${i + 1}: ${error instanceof Error ? error.message : 'falló la conexión'}`);
+      }
     }
-    const response = await fetch(`${BASE_API}/media/finish`, {
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({uploadId:id,mime}),
-    });
-    if (!response.ok) throw new Error('No se pudo guardar la fotografía original');
-    const result = await response.json();
+    const result = await request('/media/finish', { uploadId: id, mime });
+    if (typeof result.url !== 'string' || !result.url) throw new Error('Hostinger no devolvió la URL de la fotografía.');
     cache.set(dataUrl,result.url);
     return result.url;
   };
   const visit = async (item: any): Promise<any> => {
     if (typeof item === 'string' && item.startsWith('data:image/')) return transfer(item);
-    if (Array.isArray(item)) return Promise.all(item.map(visit));
+    if (Array.isArray(item)) {
+      const output = [];
+      for (const entry of item) output.push(await visit(entry));
+      return output;
+    }
     if (item && typeof item === 'object') {
       const output: Record<string,any> = {};
       for (const [key,entry] of Object.entries(item)) output[key] = await visit(entry);

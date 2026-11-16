@@ -54,3 +54,113 @@ html,body,#root{min-height:100%;width:100%;margin:0}
 html{overflow-x:hidden}
 body{overflow-x:hidden}
 @supports (min-height:100dvh){#root{min-height:100dvh}}
+
+.election-profile {
+  container-type: inline-size;
+  overflow-x: clip;
+  overflow-wrap: anywhere;
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: cover;
+  --profile-width: 62rem;
+  --profile-gap: 1.4rem;
+  --profile-radius: 1.25rem;
+  --profile-card-columns: 2;
+  --profile-feature: var(--profile-accent);
+}
+.election-profile[data-family="presidencial"] { --profile-width: 69rem; --profile-gap: 2rem; --profile-radius: .35rem; }
+.election-profile[data-family="campana_moderna"] { --profile-width: 68rem; --profile-radius: 1.65rem; --profile-card-columns: 3; }
+.election-profile[data-family="institucional"] { --profile-width: 54rem; --profile-gap: .9rem; --profile-radius: .45rem; --profile-card-columns: 1; }
+.election-profile[data-family="liderazgo_premium"] { --profile-width: 66rem; --profile-gap: 2rem; --profile-radius: .85rem; --profile-feature: #937248; }
+.election-profile[data-family="ciudadana"] { --profile-width: 55rem; --profile-gap: 1.15rem; --profile-radius: 1.75rem; }
+.election-profile[data-family="legislativa"] { --profile-width: 64rem; --profile-gap: 1.1rem; --profile-radius: .6rem; --profile-card-columns: 1; }
+.election-profile[data-family="juvenil"] { --profile-width: 51rem; --profile-gap: 1rem; --profile-radius: 2rem; --profile-card-columns: 3; }
+.election-profile[data-family="comunitaria"] { --profile-width: 57rem; --profile-gap: 1.65rem; --profile-radius: 1.45rem; }
+.election-profile[data-family="ejecutiva"] { --profile-width: 70rem; --profile-gap: 1.15rem; --profile-radius: .8rem; --profile-card-columns: 3; }
+.election-profile[data-family="movimiento_social"] { --profile-width: 63rem; --profile-gap: 1.8rem; --profile-radius: .25rem; }
+
+.profile-content {
+  width: min(100%, var(--profile-width));
+  padding: clamp(.8rem, 3cqw, 2rem);
+  display: grid;
+  gap: var(--profile-gap);
+}
+.profile-content > section {
+  min-width: 0;
+  border-radius: var(--profile-radius);
+  box-shadow: 0 12px 35px #1720330c;
+}
+.profile-hero {
+  position: relative;
+  border-top: .3rem solid var(--profile-feature);
+}
+.profile-hero-layout { display: grid; align-items: center; gap: clamp(1rem, 4cqw, 3rem); }
+.profile-portrait { width: min(100%, 23rem); min-width: 0; margin-inline: auto; }
+.profile-portrait > div:first-child {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+}
+.profile-portrait > div:first-child.rounded-full { aspect-ratio: 1; }
+.profile-portrait img { object-position: center 34%; }
+.profile-portrait > div:last-child { max-width: 98%; text-align: center; white-space: normal; }
+.profile-intro h1 { font-size: clamp(1.8rem, 5.7cqw, 3.7rem); line-height: 1.02; text-wrap: balance; }
+.profile-intro button, .profile-mobile-actions button { min-height: 44px; }
+.profile-section-heading h2 { font: 750 clamp(1.25rem, 3.6cqw, 2rem)/1.15 var(--profile-heading), system-ui; text-wrap: balance; }
+.profile-kicker { margin-bottom: .35rem; font-size: .72rem; line-height: 1.35; font-weight: 750; letter-spacing: .09em; text-transform: uppercase; }
+.profile-entry-list { display: grid; gap: .85rem; }
+.profile-entry-list li { border: 1px solid #94a3b84d; border-inline-start: .22rem solid var(--profile-feature); border-radius: .7rem; padding: 1rem; min-width: 0; }
+.profile-mobile-actions { padding-bottom: max(.75rem, env(safe-area-inset-bottom)); }
+.election-profile[data-standalone="true"] { padding-bottom: calc(5rem + env(safe-area-inset-bottom)); }
+.election-profile > header img { max-width: min(32cqw, 9rem); max-height: 3.7rem; }
+
+.election-profile[data-layout="1"] .profile-hero { border-top: 0; border-inline-start: .35rem solid var(--profile-feature); }
+.election-profile[data-layout="1"] .profile-portrait > div:first-child { border-radius: .55rem; }
+.election-profile[data-layout="2"] .profile-hero { padding: 0; }
+.election-profile[data-layout="2"] .profile-hero-layout { gap: 0; }
+.election-profile[data-layout="2"] .profile-portrait { width: 100%; }
+.election-profile[data-layout="2"] .profile-portrait > div:first-child { aspect-ratio: 4 / 3; border-radius: 0; border: 0; }
+.election-profile[data-layout="2"] .profile-intro { padding: clamp(1.1rem, 4cqw, 3rem); }
+.election-profile[data-layout="3"] .profile-hero { padding: 0; }
+.election-profile[data-layout="3"] .profile-hero-layout { gap: 0; }
+.election-profile[data-layout="3"] .profile-portrait { width: 100%; }
+.election-profile[data-layout="3"] .profile-portrait > div:first-child { aspect-ratio: 16 / 9; border: 0; border-radius: 0; }
+.election-profile[data-layout="3"] .profile-intro { padding: clamp(1.1rem, 4cqw, 2.5rem); text-align: center; }
+.election-profile[data-layout="3"] .profile-intro .flex { justify-content: center; }
+.election-profile[data-layout="4"] .profile-hero { border-top: 0; }
+.election-profile[data-layout="4"] .profile-portrait { width: min(100%, 13rem); }
+.election-profile[data-layout="4"] .profile-portrait > div:first-child { aspect-ratio: 1; border-radius: 50%; }
+.election-profile[data-layout="4"] .profile-portrait img { filter: grayscale(1); }
+.election-profile[data-layout="4"] .profile-entry-list li { border-width: 0 0 1px; border-radius: 0; }
+.election-profile[data-family="liderazgo_premium"][data-layout="0"] .profile-hero {
+  background: radial-gradient(ellipse at 70% 0, #3e352c, #151415 72%);
+  color: #f4ece3;
+}
+.election-profile[data-family="liderazgo_premium"][data-layout="0"] .profile-intro :is(h1, p, span, div) { color: inherit !important; }
+.election-profile[data-family="liderazgo_premium"][data-layout="1"] .profile-hero {
+  background: linear-gradient(120deg, #f2e9dc, #fffaf2);
+  color: #39291f;
+}
+.election-profile[data-family="liderazgo_premium"][data-layout="1"] .profile-intro :is(h1, p, span) { color: inherit !important; }
+@container (max-width: 599px) {
+  .profile-content { gap: .9rem; }
+  .profile-content > section:not([data-module="hero"]) { padding: 1rem; }
+  .profile-hero { padding: 1rem; }
+  .profile-hero-layout { gap: 1.35rem; }
+  .profile-intro { text-align: center; }
+  .profile-intro .flex { justify-content: center; }
+  .profile-portrait { width: min(100%, 16rem); }
+}
+@container (min-width: 600px) {
+  .profile-hero-layout { grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); }
+  [data-layout="1"] .profile-hero-layout { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
+  [data-layout="1"] .profile-portrait { grid-column: 2; grid-row: 1; }
+  [data-layout="1"] .profile-intro { grid-column: 1; grid-row: 1; }
+  [data-layout="2"] .profile-hero-layout { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); }
+  [data-layout="2"] .profile-portrait > div:first-child { aspect-ratio: 1; }
+  [data-layout="3"] .profile-hero-layout { grid-template-columns: 1fr; }
+  [data-layout="4"] .profile-hero-layout { grid-template-columns: minmax(0, .65fr) minmax(0, 1.35fr); }
+  .profile-entry-list { grid-template-columns: repeat(var(--profile-card-columns), minmax(0, 1fr)); }
+  [data-layout="3"] .profile-entry-list { grid-template-columns: 1fr; }
+  .profile-mobile-actions { display: none; }
+}

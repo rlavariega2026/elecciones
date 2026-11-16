@@ -226,6 +226,7 @@ export interface InteractiveButton {
 }
 
 export interface ProjectMetadata {
+  sectionsManaged?: boolean;
   createdAt: string;
   updatedAt: string;
   publishedAt?: string;
@@ -250,6 +251,8 @@ export interface Project {
   designFamily: string;
   variantId: string;
   palette: ColorPalette;
+  backgroundImageUrl?: string;
+  citizenWhatsApp?: string;
   typography: TypographySettings;
   logos: LogosConfig;
   candidate: CandidateInfo;

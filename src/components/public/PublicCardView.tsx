@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Project, SlateMember } from '../../types';
+import { Project, SectionConfig, SlateMember } from '../../types';
+import { DESIGN_FAMILIES } from '../../data/templates';
+import { AdditionalSection, SectionHeading } from './PublicSections';
 import { api } from '../../services/api';
 import { downloadVCard } from '../../utils/vcard';
 import {
@@ -33,6 +35,8 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
   const [selectedMember, setSelectedMember] = useState<SlateMember | null>(null);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [formSubmittedFolio, setFormSubmittedFolio] = useState<string | null>(null);
+  const [submittedMessage, setSubmittedMessage] = useState('');
+  const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
 
@@ -62,6 +66,22 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
   const [privacyConsent, setPrivacyConsent] = useState(true);
 
   const { candidate, palette, typography, logos, municipalSlate } = project;
+  const family = DESIGN_FAMILIES.find(item => item.id === project.designFamily) || DESIGN_FAMILIES[0];
+  const variantIndex = Math.max(0, family.variants.findIndex(item => item.id === project.variantId));
+  const sections = [...(project.sections || [])].sort((left, right) => left.order - right.order);
+  // Older municipal projects sometimes stored the roster separately.
+  if (!project.meta?.sectionsManaged && municipalSlate?.members?.length && !sections.some(section => section.type === 'slate')) {
+    sections.splice(2, 0, { id: 'legacy-slate', type: 'slate', title: municipalSlate.slateName || 'Planilla Municipal', order: 3, enabled: true, data: {} });
+  }
+  const visibleSections = sections.filter(section => section.enabled);
+  const contactVisible = visibleSections.some(section => section.type === 'contact');
+  const publicButtons = project.buttons.filter(button => button.enabled && (contactVisible || button.actionType !== 'citizen_form'));
+  const rawWhatsApp = project.citizenWhatsApp?.trim() || project.buttons.find(button => button.actionType === 'whatsapp' && button.enabled)?.actionValue
+    || visibleSections.find(section => section.type === 'contact')?.data?.whatsapp || '';
+  const digits = rawWhatsApp.replace(/[^0-9]/g, '');
+  const whatsAppNumber = digits.length === 10 ? '52' + digits : digits;
+  const reportUrl = /^[1-9][0-9]{10,14}$/.test(whatsAppNumber) && submittedMessage
+    ? `https://wa.me/${whatsAppNumber}?text=${encodeURIComponent(submittedMessage)}` : '';
 
   const handleButtonClick = async (btn: any) => {
     // Record analytics event silently
@@ -93,6 +113,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
     if (!citizenName || !message || !privacyConsent) return;
 
     setSubmitting(true);
+    setFormError('');
     try {
       const res = await api.submitCitizenInquiry({
         projectId: project.id,
@@ -105,12 +126,19 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
         privacyAccepted: privacyConsent,
       });
 
-      if (res.success) {
-        setFormSubmittedFolio(res.folio);
-        setMessage('');
-      }
-    } catch (err) {
-      console.error(err);
+      if (!res.success || !res.folio) throw new Error('No se pudo registrar la solicitud.');
+      setFormSubmittedFolio(res.folio);
+      setSubmittedMessage([
+        `Reporte ciudadano · ${res.folio}`,
+        `Perfil: ${candidate.fullName}`,
+        `Nombre: ${citizenName}`,
+        `Colonia: ${citizenColonia}`,
+        `Tipo: ${inquiryType}`,
+        `Solicitud: ${message}`,
+      ].join('\n'));
+      setMessage('');
+    } catch {
+      setFormError('No se pudo registrar la solicitud. Revisa tu conexión y vuelve a intentarlo.');
     } finally {
       setSubmitting(false);
     }
@@ -131,109 +159,19 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
     }
   };
 
-  return (
-    <div
-      onClick={enterFullscreen}
-      className="min-h-[100dvh] w-full transition-colors pb-16 selection:bg-rose-600 selection:text-white"
-      style={{
-        backgroundColor: palette.background || '#F8FAFC',
-        color: palette.text || '#0F172A',
-        fontFamily: typography.bodyFont ? `'${typography.bodyFont}', sans-serif` : 'inherit',
-      }}
-    >
-      {isStandalone && Boolean((project.meta as any)?.demo) && (
-        <div className="fixed inset-0 z-[90] pointer-events-none flex items-center justify-center overflow-hidden" aria-hidden="true">
-          <div className="w-[min(75vw,360px)] -rotate-12 text-center opacity-25 select-none">
-            <img src="/elecciones/logo-lav.svg" alt="" className="w-full" />
-            <div className="text-[clamp(3rem,15vw,7rem)] font-black leading-none tracking-wider text-violet-600">DEMO</div>
-            <div className="text-xs font-bold text-indigo-600">Versión de demostración · LAV Digital MKT</div>
-          </div>
-        </div>
-      )}
-      {isStandalone && fullscreenHint && <div className="fixed bottom-3 left-3 right-3 z-[100] mx-auto max-w-sm bg-slate-900 text-white text-xs p-3 rounded-xl shadow-lg flex gap-3 items-center"><span>Este navegador no permite pantalla completa desde esta página. Puedes instalarla en la pantalla de inicio para verla sin barras cuando sea compatible.</span><button onClick={e=>{e.stopPropagation();setFullscreenHint(false);}} aria-label="Cerrar aviso" className="shrink-0 underline">Cerrar</button></div>}
-      {/* Top Banner / Emblems Strip */}
-      <header className="w-full bg-white/80 backdrop-blur border-b border-slate-200/60 sticky top-0 z-30 px-4 py-2.5">
-        <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
-          {/* Political Logos */}
-          <div
-            className={`flex items-center gap-3 flex-wrap ${
-              logos.alignment === 'center'
-                ? 'justify-center mx-auto'
-                : logos.alignment === 'right'
-                ? 'justify-end ml-auto'
-                : 'justify-start'
-            }`}
-          >
-            {logos.partyLogoVisible && logos.partyLogoUrl && (
-              <img
-                src={logos.partyLogoUrl}
-                alt="Partido"
-                style={{ height: `${logos.partyLogoSize || 48}px` }}
-                className="object-contain"
-              />
-            )}
-
-            {logos.candidateLogoVisible && logos.candidateLogoUrl && (
-              <img
-                src={logos.candidateLogoUrl}
-                alt="Candidato"
-                style={{ height: `${logos.candidateLogoSize || 48}px` }}
-                className="object-contain"
-              />
-            )}
-
-            {logos.campaignLogoVisible && logos.campaignLogoUrl && (
-              <img
-                src={logos.campaignLogoUrl}
-                alt="Campaña"
-                style={{ height: `${logos.campaignLogoSize || 48}px` }}
-                className="object-contain"
-              />
-            )}
-
-            {/* Coalition logos */}
-            {(logos.coalitionLogos || [])
-              .filter((l) => l.visible !== false && l.url)
-              .map((c) => (
-                <img
-                  key={c.id}
-                  src={c.url}
-                  alt={c.name}
-                  style={{ height: `${c.size || 36}px` }}
-                  className="object-contain"
-                />
-              ))}
-
-            {/* If Ayudantía by Color badge */}
-            {municipalSlate?.isAyudantia && municipalSlate.color && (
-              <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-slate-900 text-white">
-                Planilla {municipalSlate.color}
-              </span>
-            )}
-          </div>
-
-          <button
-            onClick={handleShare}
-            className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors shrink-0"
-            title="Compartir tarjeta"
-          >
-            {shareCopied ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4" />}
-          </button>
-        </div>
-      </header>
-
-      {/* Main Content Container */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 space-y-8">
-        {/* HERO SECTION */}
-        <section
-          className="rounded-2xl overflow-hidden shadow-sm border border-slate-200/60 p-6 sm:p-8"
+  const renderSection = (section: SectionConfig) => {
+    switch (section.type) {
+      case 'hero':
+        return (
+          <section data-module={section.type}
+          className="profile-hero rounded-2xl overflow-hidden shadow-sm border border-slate-200/60 p-6 sm:p-8"
           style={{
             backgroundColor: palette.surface || '#FFFFFF',
           }}
         >
-          <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-8">
+          <div className="profile-hero-layout">
             {/* Candidate Photo */}
-            <div className="relative shrink-0">
+            <div className="profile-portrait relative shrink-0">
               <div
                 className={`overflow-hidden shadow-md border-2 ${
                   candidate.heroPhotoStyle === 'circle'
@@ -244,9 +182,9 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
                 }`}
                 style={{ borderColor: palette.primary }}
               >
-                {candidate.heroPhotoUrl ? (
+                {(candidate.coverPhotoUrl || candidate.heroPhotoUrl) ? (
                   <img
-                    src={candidate.heroPhotoUrl}
+                    src={(variantIndex === 2 || variantIndex === 3 ? candidate.coverPhotoUrl : candidate.heroPhotoUrl) || candidate.heroPhotoUrl || candidate.coverPhotoUrl}
                     alt={candidate.fullName}
                     className="w-full h-full object-cover"
                   />
@@ -267,8 +205,10 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
             </div>
 
             {/* Candidate Info & Slogan */}
-            <div className="flex-1 text-center md:text-left space-y-3">
+            <div className="profile-intro min-w-0 space-y-3">
               <div className="space-y-1">
+                {section.subtitle && <p className="profile-kicker">{section.subtitle}</p>}
+                <p className="profile-kicker">{section.title}</p>
                 <span
                   className="text-xs font-bold uppercase tracking-widest block"
                   style={{ color: palette.primary }}
@@ -317,8 +257,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
 
               {/* Quick Action Buttons Row */}
               <div className="pt-2 flex flex-wrap items-center justify-center md:justify-start gap-2.5">
-                {project.buttons
-                  .filter((b) => b.enabled)
+                {publicButtons
                   .slice(0, 3)
                   .map((btn) => (
                     <button
@@ -348,27 +287,14 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
             </div>
           </div>
         </section>
-
-        {/* BIO & SEMBLANZA SECTION */}
-        {candidate.bio && (
-          <section
+        );
+      case 'bio':
+        return (
+          <section data-module={section.type}
             className="rounded-2xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-4"
             style={{ backgroundColor: palette.surface || '#FFFFFF' }}
           >
-            <div className="border-b border-slate-100 pb-3">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                Semblanza & Trayectoria
-              </span>
-              <h2
-                className="text-xl font-bold"
-                style={{
-                  fontFamily: typography.headingFont ? `'${typography.headingFont}', sans-serif` : 'inherit',
-                  color: palette.text,
-                }}
-              >
-                Conoce a {candidate.shortName || candidate.fullName}
-              </h2>
-            </div>
+            <SectionHeading section={section} />
             <p className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">
               {candidate.bio}
             </p>
@@ -379,41 +305,20 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
               </blockquote>
             )}
           </section>
-        )}
-
-        {/* MUNICIPAL SLATE OR AYUDANTÍA TEAM ROSTER */}
-        {municipalSlate && municipalSlate.members && municipalSlate.members.length > 0 && (
-          <section
+        );
+      case 'slate':
+        return (
+          <section data-module={section.type}
             id="slate-section"
             className="rounded-2xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-6"
             style={{ backgroundColor: palette.surface || '#FFFFFF' }}
           >
-            <div>
-              <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-rose-600" />
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                  {municipalSlate.isAyudantia ? 'Equipo de Ayudantía' : 'Cuerpo Edilicio'}
-                </span>
-              </div>
-              <h2
-                className="text-xl font-bold"
-                style={{
-                  fontFamily: typography.headingFont ? `'${typography.headingFont}', sans-serif` : 'inherit',
-                  color: palette.text,
-                }}
-              >
-                {municipalSlate.slateName || 'Planilla Municipal'}
-              </h2>
-              <p className="text-xs text-slate-500 mt-1">
-                Toca a cualquier integrante para ver su ficha biográfica completa, propuestas y datos de contacto.
-              </p>
-            </div>
-
+            <SectionHeading section={section} />
             {/* Slate Header Photo */}
-            {municipalSlate.headerPhotoUrl && (
+            {municipalSlate?.headerPhotoUrl && (
               <div className="w-full h-52 sm:h-64 rounded-xl overflow-hidden border border-slate-200 shadow-inner">
                 <img
-                  src={municipalSlate.headerPhotoUrl}
+                  src={municipalSlate?.headerPhotoUrl}
                   alt="Planilla Completa"
                   className="w-full h-full object-cover"
                 />
@@ -422,7 +327,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
 
             {/* Members Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
-              {municipalSlate.members.map((member) => (
+              {(municipalSlate?.members || []).map((member) => (
                 <div
                   key={member.id}
                   onClick={() => setSelectedMember(member)}
@@ -454,32 +359,19 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
               ))}
             </div>
           </section>
-        )}
-
-        {/* PROPOSALS SECTION */}
-        {project.sections.find((s) => s.type === 'proposals' && s.enabled) && (
-          <section
+        );
+      case 'proposals':
+        return (
+          <section data-module={section.type}
             className="rounded-2xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-6"
             style={{ backgroundColor: palette.surface || '#FFFFFF' }}
           >
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                Soluciones para Morelos
-              </span>
-              <h2
-                className="text-xl font-bold"
-                style={{
-                  fontFamily: typography.headingFont ? `'${typography.headingFont}', sans-serif` : 'inherit',
-                  color: palette.text,
-                }}
-              >
-                Propuestas y Compromisos de Campaña
-              </h2>
-            </div>
+            <SectionHeading section={section} />
+
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {(
-                project.sections.find((s) => s.type === 'proposals')?.data?.items || []
+                section.data?.items || []
               ).map((prop: any, idx: number) => (
                 <div
                   key={prop.id || idx}
@@ -508,32 +400,19 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
               ))}
             </div>
           </section>
-        )}
-
-        {/* MULTIMEDIA GALLERY SECTION */}
-        {project.sections.find((s) => s.type === 'gallery' && s.enabled) && (
-          <section
+        );
+      case 'gallery':
+        return (
+          <section data-module={section.type}
             className="rounded-2xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-6"
             style={{ backgroundColor: palette.surface || '#FFFFFF' }}
           >
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                Recorridos en Territorio
-              </span>
-              <h2
-                className="text-xl font-bold"
-                style={{
-                  fontFamily: typography.headingFont ? `'${typography.headingFont}', sans-serif` : 'inherit',
-                  color: palette.text,
-                }}
-              >
-                Galería Fotográfica Oficial
-              </h2>
-            </div>
+            <SectionHeading section={section} />
+
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {(
-                project.sections.find((s) => s.type === 'gallery')?.data?.images || []
+                section.data?.images || []
               ).map((img: any) => (
                 <div
                   key={img.id}
@@ -554,32 +433,15 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
               ))}
             </div>
           </section>
-        )}
-
-        {/* CITIZEN PARTICIPATION & TRACKING FOLIO FORM */}
-        <section
-          id="citizen-form"
+        );
+      case 'contact':
+        return (
+          <section data-module={section.type}
+          id={section.id === visibleSections.find(item => item.type === 'contact')?.id ? 'citizen-form' : undefined}
           className="rounded-2xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-6"
           style={{ backgroundColor: palette.surface || '#FFFFFF' }}
         >
-          <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600 block">
-              Atención Ciudadana Directa
-            </span>
-            <h2
-              className="text-xl font-bold"
-              style={{
-                fontFamily: typography.headingFont ? `'${typography.headingFont}', sans-serif` : 'inherit',
-                color: palette.text,
-              }}
-            >
-              Envía tu Solicitud, Propuesta o Reporte
-            </h2>
-            <p className="text-xs text-slate-500 mt-1">
-              Al enviar tu mensaje se generará un número de folio oficial para dar seguimiento a tu petición vecinal.
-            </p>
-          </div>
-
+            <SectionHeading section={section} />
           {formSubmittedFolio ? (
             <div className="p-6 bg-emerald-50 rounded-xl border border-emerald-200 text-center space-y-3">
               <CheckCircle2 className="w-10 h-10 text-emerald-600 mx-auto" />
@@ -595,6 +457,12 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
               <p className="text-[11px] text-emerald-700">
                 Nos pondremos en contacto contigo a la brevedad. ¡Gracias por participar!
               </p>
+              {reportUrl && (
+                <a href={reportUrl} target="_blank" rel="noopener noreferrer"
+                  className="block w-fit rounded-xl bg-emerald-700 px-4 py-3 text-sm font-bold text-white">
+                  Enviar reporte por WhatsApp
+                </a>
+              )}
               <button
                 type="button"
                 onClick={() => setFormSubmittedFolio(null)}
@@ -605,6 +473,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
             </div>
           ) : (
             <form onSubmit={handleFormSubmit} className="space-y-4 text-xs">
+              {formError && <p role="alert" className="text-sm text-rose-700">{formError}</p>}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block font-semibold text-slate-700 mb-1">
@@ -722,31 +591,19 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
             </form>
           )}
         </section>
-
-        {/* FAQ ACCORDION SECTION */}
-        {project.sections.find((s) => s.type === 'faq' && s.enabled) && (
-          <section
+        );
+      case 'faq':
+        return (
+          <section data-module={section.type}
             className="rounded-2xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-4"
             style={{ backgroundColor: palette.surface || '#FFFFFF' }}
           >
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                Transparencia & Dudas
-              </span>
-              <h2
-                className="text-xl font-bold"
-                style={{
-                  fontFamily: typography.headingFont ? `'${typography.headingFont}', sans-serif` : 'inherit',
-                  color: palette.text,
-                }}
-              >
-                Preguntas Frecuentes Ciudadanas
-              </h2>
-            </div>
+            <SectionHeading section={section} />
+
 
             <div className="space-y-3">
               {(
-                project.sections.find((s) => s.type === 'faq')?.data?.items || []
+                section.data?.items || []
               ).map((faq: any, idx: number) => (
                 <div key={faq.id || idx} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
                   <h3 className="font-bold text-xs text-slate-900">{faq.question}</h3>
@@ -755,14 +612,123 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
               ))}
             </div>
           </section>
-        )}
+        );
+      default:
+        return <AdditionalSection section={section} surface={palette.surface} buttons={publicButtons} onButton={handleButtonClick} />;
+    }
+  };
+
+  return (
+    <div
+      onClick={enterFullscreen}
+      data-family={family.id}
+      data-layout={variantIndex}
+      data-standalone={isStandalone}
+      className="election-profile min-h-[100dvh] w-full transition-colors pb-16 selection:bg-rose-600 selection:text-white"
+      style={{
+        backgroundColor: palette.background || '#F8FAFC',
+        backgroundImage: project.backgroundImageUrl
+          ? `url("${project.backgroundImageUrl.replace(/["\\\n\r\f]/g, character => encodeURIComponent(character))}")`
+          : undefined,
+        '--profile-accent': palette.primary,
+        '--profile-surface': palette.surface || '#fff',
+        '--profile-heading': typography.headingFont ? `'${typography.headingFont}'` : 'system-ui',
+        color: palette.text || '#0F172A',
+        fontFamily: typography.bodyFont ? `'${typography.bodyFont}', sans-serif` : 'inherit',
+      } as React.CSSProperties}
+    >
+      {isStandalone && Boolean((project.meta as any)?.demo) && (
+        <div className="fixed inset-0 z-[90] pointer-events-none flex items-center justify-center overflow-hidden" aria-hidden="true">
+          <div className="w-[min(75vw,360px)] -rotate-12 text-center opacity-25 select-none">
+            <img src="/elecciones/logo-lav.svg" alt="" className="w-full" />
+            <div className="text-[clamp(3rem,15vw,7rem)] font-black leading-none tracking-wider text-violet-600">DEMO</div>
+            <div className="text-xs font-bold text-indigo-600">Versión de demostración · LAV Digital MKT</div>
+          </div>
+        </div>
+      )}
+      {isStandalone && fullscreenHint && <div className="fixed bottom-3 left-3 right-3 z-[100] mx-auto max-w-sm bg-slate-900 text-white text-xs p-3 rounded-xl shadow-lg flex gap-3 items-center"><span>Este navegador no permite pantalla completa desde esta página. Puedes instalarla en la pantalla de inicio para verla sin barras cuando sea compatible.</span><button onClick={e=>{e.stopPropagation();setFullscreenHint(false);}} aria-label="Cerrar aviso" className="shrink-0 underline">Cerrar</button></div>}
+      {/* Top Banner / Emblems Strip */}
+      <header className="w-full bg-white/80 backdrop-blur border-b border-slate-200/60 sticky top-0 z-30 px-4 py-2.5">
+        <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
+          {/* Political Logos */}
+          <div
+            className={`flex items-center gap-3 flex-wrap ${
+              logos.alignment === 'center'
+                ? 'justify-center mx-auto'
+                : logos.alignment === 'right'
+                ? 'justify-end ml-auto'
+                : 'justify-start'
+            }`}
+          >
+            {logos.partyLogoVisible && logos.partyLogoUrl && (
+              <img
+                src={logos.partyLogoUrl}
+                alt="Partido"
+                style={{ height: `${logos.partyLogoSize || 48}px` }}
+                className="object-contain"
+              />
+            )}
+
+            {logos.candidateLogoVisible && logos.candidateLogoUrl && (
+              <img
+                src={logos.candidateLogoUrl}
+                alt="Candidato"
+                style={{ height: `${logos.candidateLogoSize || 48}px` }}
+                className="object-contain"
+              />
+            )}
+
+            {logos.campaignLogoVisible && logos.campaignLogoUrl && (
+              <img
+                src={logos.campaignLogoUrl}
+                alt="Campaña"
+                style={{ height: `${logos.campaignLogoSize || 48}px` }}
+                className="object-contain"
+              />
+            )}
+
+            {/* Coalition logos */}
+            {(logos.coalitionLogos || [])
+              .filter((l) => l.visible !== false && l.url)
+              .map((c) => (
+                <img
+                  key={c.id}
+                  src={c.url}
+                  alt={c.name}
+                  style={{ height: `${c.size || 36}px` }}
+                  className="object-contain"
+                />
+              ))}
+
+            {/* If Ayudantía by Color badge */}
+            {municipalSlate?.isAyudantia && municipalSlate.color && (
+              <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-slate-900 text-white">
+                Planilla {municipalSlate.color}
+              </span>
+            )}
+          </div>
+
+          <button
+            onClick={handleShare}
+            className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors shrink-0"
+            title="Compartir tarjeta"
+          >
+            {shareCopied ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4" />}
+          </button>
+        </div>
+      </header>
+
+      {/* Main Content Container */}
+      <main className="profile-content mx-auto">
+        {visibleSections.map(section => (
+          <React.Fragment key={section.id}>{renderSection(section)}</React.Fragment>
+        ))}
       </main>
 
       {/* FLOATING ACTION BAR FOR MOBILE */}
-      <div className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur border-t border-slate-200 p-3 z-30 sm:hidden">
+      <div className="profile-mobile-actions fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur border-t border-slate-200 p-3 z-30" hidden={!isStandalone || publicButtons.length === 0}>
         <div className="max-w-md mx-auto flex items-center justify-between gap-2">
-          {project.buttons
-            .filter((b) => b.enabled)
+          {publicButtons
             .slice(0, 3)
             .map((btn) => (
               <button
@@ -788,7 +754,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
       </div>
 
       {/* FOOTER */}
-      <footer className="mt-12 text-center text-xs text-slate-400 max-w-4xl mx-auto px-4 space-y-1">
+      <footer className="mt-12 text-center text-xs text-slate-500 max-w-4xl mx-auto px-4 space-y-1">
         <p>LAV Política Digital · Propiedad de LAV Digital MKT</p>
         <p className="italic">"Lo que no se ve, no existe"</p>
       </footer>
@@ -816,7 +782,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
       {/* SLATE MEMBER DETAIL MODAL */}
       {selectedMember && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-200">
+          <div className="max-h-[85dvh] overflow-y-auto bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-200">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3">
                 <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-slate-200 shrink-0">

@@ -20,7 +20,7 @@ function readDb(){global $dbPath;$db=file_exists($dbPath)?json_decode(file_get_c
 function saveDb($db){global $dbPath;$fp=fopen($dbPath.'.lock','c');if(!$fp||!flock($fp,LOCK_EX))out(['success'=>false,'message'=>'No se pudo bloquear base de datos'],500);$tmp=$dbPath.'.'.bin2hex(random_bytes(4)).'.tmp';file_put_contents($tmp,json_encode($db,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT));rename($tmp,$dbPath);flock($fp,LOCK_UN);fclose($fp);}
 function findIndex($projects,$id){foreach($projects as $i=>$p)if(($p['id']??'')===$id)return $i;return -1;}
 function reserved($s){return in_array($s,['api','admin','elecciones','assets','dashboard','public','login','register','settings','index','favicon','robots','sitemap'],true);}
-function uniqueSlug($db,$s,$except=''){foreach($db['projects'] as $p)if(($p['slug']??'')===$s&&($p['id']??'')!==$except)return false;return !reserved($s);}
+function uniqueSlug($db,$s,$except=''){foreach($db['projects'] as $p)if((($p['slug']??'')===$s||in_array($s,$p['previousSlugs']??[],true))&&($p['id']??'')!==$except)return false;return !reserved($s);}
 
 function authDbPath(){global $dataDir;return $dataDir.'/users.json';}
 function readUsers(){
@@ -85,8 +85,6 @@ if(!$publicRead&&!$publicWrite){
  if(!in_array($method,['GET','HEAD','OPTIONS'],true))csrfCheck();
 }
 
-$db=readDb();
-
 // Chunked media storage: avoids browser localStorage and PHP single-request upload limits.
 if($path==='/media/chunk'&&$method==='POST'){
   $b=body();$uploadId=(string)($b['uploadId']??'');$index=$b['index']??null;$data=$b['data']??null;
@@ -97,7 +95,8 @@ if($path==='/media/chunk'&&$method==='POST'){
   if(!file_exists($folder.'/.htaccess'))file_put_contents($folder.'/.htaccess',"Require all denied\n");
   $file=$folder.'/'.$uploadId.'.part';
   $fp=fopen($file,$index===0?'wb':'ab');if(!$fp||!flock($fp,LOCK_EX))out(['success'=>false],500);
-  fwrite($fp,$bytes);flock($fp,LOCK_UN);fclose($fp);
+  $written=fwrite($fp,$bytes);flock($fp,LOCK_UN);fclose($fp);
+  if($written!==strlen($bytes)){@unlink($file);out(['success'=>false,'message'=>'No se pudo escribir el bloque en Hostinger'],500);}
   out(['success'=>true]);
 }
 if($path==='/media/finish'&&$method==='POST'){
@@ -114,17 +113,19 @@ if($path==='/media/finish'&&$method==='POST'){
   out(['success'=>true,'url'=>'/elecciones/media/'.$filename]);
 }
 
+$db=readDb();
+
 if($path==='/projects'&&$method==='GET'){$items=$db['projects'];foreach(['status','category','partyId'] as $k)if(isset($_GET[$k])&&$_GET[$k]!=='todos')$items=array_values(array_filter($items,fn($p)=>($p[$k]??'')===$_GET[$k]));if(!empty($_GET['search'])){$q=mb_strtolower($_GET['search']);$items=array_values(array_filter($items,fn($p)=>str_contains(mb_strtolower(json_encode($p,JSON_UNESCAPED_UNICODE)),$q)));}out(['success'=>true,'count'=>count($items),'projects'=>$items]);}
 if($path==='/projects/check-slug'&&$method==='GET'){$s=slug($_GET['slug']??'');$ok=strlen($s)>=3&&uniqueSlug($db,$s,$_GET['currentId']??'');out(['valid'=>$ok,'slug'=>$s,'url'=>$ok?publicUrl($s):null,'message'=>$ok?'Dirección disponible':'Dirección no disponible']);}
 if($path==='/projects'&&$method==='POST'){$p=body();if(empty($p['internalName'])||empty($p['candidate']['fullName']))out(['success'=>false,'message'=>'Nombre interno y candidato requeridos'],400);$s=slug($p['slug']??$p['candidate']['shortName']??$p['internalName']);if(strlen($s)<3)$s='proyecto-'.time();$base=$s;$n=1;while(!uniqueSlug($db,$s))$s=$base.'-'.$n++;$p['id']=$p['id']??uniqid('proj-',true);$p['slug']=$s;$p['previousSlugs']=[];$p['status']=$p['status']??'borrador';$p['meta']=array_replace(['createdAt'=>gmdate('c'),'updatedAt'=>gmdate('c'),'viewsCount'=>0,'clicksCount'=>0,'qrScansCount'=>0,'inquiriesCount'=>0],$p['meta']??[]);$db['projects'][]=$p;saveDb($db);out(['success'=>true,'project'=>$p],201);}
 if(preg_match('~^/projects/by-slug/([^/]+)$~',$path,$m)&&$method==='GET'){$s=slug($m[1]);foreach($db['projects'] as $p)if(($p['slug']??'')===$s||in_array($s,$p['previousSlugs']??[],true))out(['success'=>true,'project'=>$p,'isRedirect'=>$p['slug']!==$s,'currentSlug'=>$p['slug']]);out(['success'=>false,'message'=>'No encontrada'],404);}
 if(preg_match('~^/projects/([^/]+)(?:/(duplicate|publish|unpublish))?$~',$path,$m)){$id=$m[1];$op=$m[2]??'';$i=findIndex($db['projects'],$id);if($i<0)out(['success'=>false,'message'=>'Proyecto no encontrado'],404);$p=$db['projects'][$i];
  if($op==='duplicate'&&$method==='POST'){$p['id']=uniqid('proj-',true);$p['internalName']='Copia de '.($p['internalName']??'Proyecto');$p['slug']=slug($p['slug'].'-copia-'.time());$p['status']='borrador';$p['previousSlugs']=[];$p['meta']=['createdAt'=>gmdate('c'),'updatedAt'=>gmdate('c'),'viewsCount'=>0,'clicksCount'=>0,'qrScansCount'=>0,'inquiriesCount'=>0];array_unshift($db['projects'],$p);saveDb($db);out(['success'=>true,'project'=>$p]);}
- if($op==='publish'&&$method==='POST'){$b=body();$s=slug($b['slug']??$p['slug']);if(!uniqueSlug($db,$s,$id))out(['success'=>false,'message'=>'Dirección ocupada'],400);$p['slug']=$s;$p['status']='publicado';$p['meta']['demo']=!empty($b['demo']);$p['meta']['publishedAt']=gmdate('c');$p['meta']['publishedUrl']=publicUrl($s);$p['meta']['updatedAt']=gmdate('c');$db['projects'][$i]=$p;saveDb($db);out(['success'=>true,'project'=>$p]);}
+ if($op==='publish'&&$method==='POST'){$b=body();$s=slug($b['slug']??$p['slug']);if(!uniqueSlug($db,$s,$id))out(['success'=>false,'message'=>'Dirección ocupada'],400);if($p['slug']!==$s)$p['previousSlugs']=array_values(array_unique(array_merge($p['previousSlugs']??[],[$p['slug']])));$p['slug']=$s;$p['status']='publicado';$p['meta']['demo']=!empty($b['demo']);$p['meta']['publishedAt']=gmdate('c');$p['meta']['publishedUrl']=publicUrl($s);$p['meta']['updatedAt']=gmdate('c');$db['projects'][$i]=$p;saveDb($db);out(['success'=>true,'project'=>$p]);}
  if($op==='unpublish'&&$method==='POST'){$p['status']='borrador';$p['meta']['updatedAt']=gmdate('c');$db['projects'][$i]=$p;saveDb($db);out(['success'=>true,'project'=>$p]);}
  if($op===''&&$method==='GET')out(['success'=>true,'project'=>$p]);
  if($op===''&&$method==='DELETE'){array_splice($db['projects'],$i,1);saveDb($db);out(['success'=>true,'message'=>'Proyecto eliminado']);}
- if($op===''&&$method==='PUT'){$b=body();if(isset($b['slug'])&&$b['slug']!==$p['slug']){$s=slug($b['slug']);if(!uniqueSlug($db,$s,$id))out(['success'=>false,'message'=>'Dirección ocupada'],400);$p['previousSlugs'][]=$p['slug'];$b['slug']=$s;}$p=array_replace_recursive($p,$b);$p['id']=$id;$p['meta']['updatedAt']=gmdate('c');$db['projects'][$i]=$p;saveDb($db);out(['success'=>true,'project'=>$p]);}
+ if($op===''&&$method==='PUT'){$b=body();if(isset($b['slug'])&&$b['slug']!==$p['slug']){$s=slug($b['slug']);if(!uniqueSlug($db,$s,$id))out(['success'=>false,'message'=>'Dirección ocupada'],400);$p['previousSlugs'][]=$p['slug'];$b['slug']=$s;}$p=array_replace_recursive($p,$b);if(isset($b['sections'])&&is_array($b['sections']))$p['sections']=$b['sections'];$p['id']=$id;$p['meta']['updatedAt']=gmdate('c');$db['projects'][$i]=$p;saveDb($db);out(['success'=>true,'project'=>$p]);}
 }
 if($path==='/citizen-inquiries'&&$method==='GET'){$items=$db['citizenInquiries'];foreach(['projectId','status'] as $k)if(!empty($_GET[$k])&&$_GET[$k]!=='todos')$items=array_values(array_filter($items,fn($p)=>($p[$k]??'')===$_GET[$k]));out(['success'=>true,'count'=>count($items),'inquiries'=>$items]);}
 if($path==='/citizen-inquiries'&&$method==='POST'){$b=body();if(empty($b['citizenName'])||empty($b['message'])||empty($b['privacyAccepted']))out(['success'=>false,'message'=>'Datos requeridos'],400);$b['id']=uniqid('inq-');$b['folio']='LAV-'.date('Y').'-'.random_int(1000,9999);$b['status']='nuevo';$b['createdAt']=gmdate('c');array_unshift($db['citizenInquiries'],$b);saveDb($db);out(['success'=>true,'folio'=>$b['folio'],'inquiry'=>$b],201);}

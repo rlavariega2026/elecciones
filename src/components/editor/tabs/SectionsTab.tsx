@@ -1,3 +1,4 @@
+import { SectionContentFields } from './SectionContentFields';
 import React, { useState } from 'react';
 import { Project, SectionConfig, SectionType } from '../../../types';
 import {
@@ -19,6 +20,9 @@ interface SectionsTabProps {
 }
 
 const AVAILABLE_SECTION_TYPES: Array<{ type: SectionType; title: string; defaultSubtitle: string }> = [
+  { type: 'hero', title: 'Portada', defaultSubtitle: '' },
+  { type: 'slate', title: 'Planilla Municipal', defaultSubtitle: '' },
+  { type: 'custom_buttons', title: 'Botones', defaultSubtitle: '' },
   { type: 'bio', title: 'Biografía & Semblanza', defaultSubtitle: 'Historia de servicio y compromiso con Morelos' },
   { type: 'trajectory', title: 'Trayectoria Política', defaultSubtitle: 'Años de servicio público y resultados' },
   { type: 'education', title: 'Formación Académica', defaultSubtitle: 'Estudios profesionales y certificaciones' },
@@ -38,11 +42,14 @@ const AVAILABLE_SECTION_TYPES: Array<{ type: SectionType; title: string; default
 ];
 
 export const SectionsTab: React.FC<SectionsTabProps> = ({ project, onChange }) => {
-  const sections = project.sections || [];
+  const sections = [...(project.sections || [])].sort((a, b) => a.order - b.order);
+  if (!project.meta?.sectionsManaged && project.municipalSlate?.members?.length && !sections.some(section => section.type === 'slate')) {
+    sections.splice(2, 0, { id: 'legacy-slate', type: 'slate', title: project.municipalSlate.slateName || 'Planilla Municipal', order: 3, enabled: true, data: {} });
+  }
   const [expandedSecId, setExpandedSecId] = useState<string | null>(null);
 
   const handleSectionsChange = (updated: SectionConfig[]) => {
-    onChange({ sections: updated });
+    onChange({ sections: updated.map((section, index) => ({ ...section, order: index + 1 })), meta: { ...project.meta, sectionsManaged: true } });
   };
 
   const toggleSection = (id: string) => {
@@ -265,6 +272,9 @@ export const SectionsTab: React.FC<SectionsTabProps> = ({ project, onChange }) =
                         />
                       </div>
                     </div>
+                    <SectionContentFields section={sec} onChange={data =>
+                      handleSectionsChange(sections.map(section => section.id === sec.id ? { ...section, data } : section))
+                    } />
                   </div>
                 )}
               </div>

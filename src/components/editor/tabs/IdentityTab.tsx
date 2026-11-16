@@ -41,6 +41,32 @@ export const IdentityTab: React.FC<IdentityTabProps> = ({ project, onChange }) =
 
   return (
     <div className="space-y-6 text-xs">
+      <fieldset className="rounded-xl border border-slate-200 bg-white p-5 space-y-3">
+        <legend className="font-bold text-sm">Imagen de fondo</legend>
+        <label className="block space-y-1">
+          <span>Subir imagen original</span>
+          <input className="block w-full" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+            onChange={event => {
+              const file = event.currentTarget.files?.[0];
+              if (!file) return;
+              const reader = new FileReader();
+              reader.onload = () => onChange({ backgroundImageUrl: String(reader.result) });
+              reader.onerror = () => window.alert('No se pudo leer la imagen de fondo.');
+              reader.readAsDataURL(file);
+            }} />
+        </label>
+        {project.backgroundImageUrl && <>
+          <img src={project.backgroundImageUrl} alt="Vista previa del fondo" className="h-28 w-full rounded-lg object-cover" />
+          <button type="button" onClick={() => onChange({ backgroundImageUrl: '' })} className="font-semibold text-rose-700">Quitar imagen</button>
+        </>}
+      </fieldset>
+      <label className="block rounded-xl border border-slate-200 bg-white p-5 space-y-2">
+        <span className="block font-bold text-sm">WhatsApp para reportes ciudadanos</span>
+        <input type="tel" value={project.citizenWhatsApp || ''} placeholder="+52 777 000 0000"
+          onChange={event => onChange({ citizenWhatsApp: event.target.value })}
+          className="w-full rounded-lg border border-slate-300 p-2" />
+        <span className="block text-slate-600">Si lo dejas vacío, se usa el número del botón de WhatsApp del perfil.</span>
+      </label>
       {/* Political Party Selector */}
       <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
         <div>

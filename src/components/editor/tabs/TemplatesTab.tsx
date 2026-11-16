@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Project } from '../../../types';
 import { DESIGN_FAMILIES } from '../../../data/templates';
 import { LayoutTemplate, BookmarkPlus, Check, Sparkles } from 'lucide-react';
@@ -11,6 +11,18 @@ interface TemplatesTabProps {
 
 export const TemplatesTab: React.FC<TemplatesTabProps> = ({ project, onChange }) => {
   const [templateSavedMsg, setTemplateSavedMsg] = useState(false);
+  const [customTemplates, setCustomTemplates] = useState<Array<Pick<Project, 'designFamily' | 'variantId' | 'palette' | 'typography'> & { id: string; name: string }>>([]);
+  const [templateError, setTemplateError] = useState('');
+  useEffect(() => {
+    let active = true;
+    api.getTemplates().then(result => {
+      if (active) setCustomTemplates(current => [
+        ...current.filter(template => !result.templates.some(item => item.id === template.id)),
+        ...result.templates,
+      ]);
+    }).catch(() => { if (active) setTemplateError('No se pudo cargar el catálogo de plantillas guardadas.'); });
+    return () => { active = false; };
+  }, []);
   const [savingTemplate, setSavingTemplate] = useState(false);
 
   const selectedFamily =
@@ -33,7 +45,8 @@ export const TemplatesTab: React.FC<TemplatesTabProps> = ({ project, onChange })
   const handleSaveAsCustomTemplate = async () => {
     setSavingTemplate(true);
     try {
-      await api.saveTemplate({
+      setTemplateError('');
+      const result = await api.saveTemplate({
         name: `Plantilla ${selectedFamily.name} — ${project.candidate.shortName || project.internalName}`,
         description: `Variante: ${project.variantId} con paleta de ${project.partyId}`,
         designFamily: project.designFamily,
@@ -41,10 +54,11 @@ export const TemplatesTab: React.FC<TemplatesTabProps> = ({ project, onChange })
         palette: project.palette,
         typography: project.typography,
       });
+      setCustomTemplates(current => [...current, result.template]);
       setTemplateSavedMsg(true);
       setTimeout(() => setTemplateSavedMsg(false), 3000);
     } catch (e) {
-      console.error(e);
+      setTemplateError('No se pudo guardar la plantilla. Vuelve a intentarlo.');
     } finally {
       setSavingTemplate(false);
     }
@@ -52,6 +66,20 @@ export const TemplatesTab: React.FC<TemplatesTabProps> = ({ project, onChange })
 
   return (
     <div className="space-y-6 text-xs">
+      {templateError && <p role="alert" className="text-rose-700">{templateError}</p>}
+      {customTemplates.length > 0 && (
+        <label className="block rounded-xl border border-slate-200 bg-white p-4 font-semibold">
+          Aplicar plantilla guardada
+          <select value="" onChange={event => {
+            const template = customTemplates.find(item => item.id === event.target.value);
+            if (template) onChange({ designFamily: template.designFamily, variantId: template.variantId, palette: template.palette, typography: template.typography });
+          }} className="mt-2 block w-full rounded-lg border border-slate-200 p-2">
+            <option value="">Elige una plantilla</option>
+            {customTemplates.map(template => <option key={template.id} value={template.id}>{template.name}</option>)}
+          </select>
+        </label>
+      )}
+
       <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
