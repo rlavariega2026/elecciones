@@ -53,6 +53,8 @@ export interface LogoItem {
 export interface LogosConfig {
   partyLogoUrl?: string;
   partyLogoSize?: number;
+  partyLogoPlacement?: 'header' | 'above-photo' | 'below-photo';
+  partyLogoAlignment?: 'left' | 'center' | 'right';
   partyLogoVisible?: boolean;
   candidateLogoUrl?: string;
   candidateLogoSize?: number;
@@ -240,6 +242,7 @@ export interface ProjectMetadata {
 }
 
 export interface Project {
+  visualPreset?: 'classic' | 'cristal-editorial';
   id: string;
   internalName: string;
   slug: string;

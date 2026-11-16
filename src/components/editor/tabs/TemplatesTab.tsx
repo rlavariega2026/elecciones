@@ -126,6 +126,14 @@ export const TemplatesTab: React.FC<TemplatesTabProps> = ({ project, onChange })
 
         <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
           <h5 className="text-sm font-bold text-slate-900">Personaliza la portada y los recuadros</h5>
+          <label className="block font-semibold">Estilo visual de la tarjeta
+            <select className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-2"
+              value={project.visualPreset || 'classic'}
+              onChange={event => onChange({ visualPreset: event.target.value === 'cristal-editorial' ? 'cristal-editorial' : 'classic' })}>
+              <option value="classic">Diseño actual</option>
+              <option value="cristal-editorial">Cristal Editorial</option>
+            </select>
+          </label>
           {hero ? (
             <div className="space-y-2">
               <HeroPhotoControls section={hero} onChange={data => changeSection(hero.id, data)} />

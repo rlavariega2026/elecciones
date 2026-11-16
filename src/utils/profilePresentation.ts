@@ -41,15 +41,32 @@ export function legacyNetwork(item: { title?: string; url?: string; link?: strin
     (key === 'youtube' && url.includes('youtu.be')))?.[0];
 }
 
-export function sectionSurface(section: SectionConfig, fallback: string): CSSProperties {
+export function sectionSurface(section: SectionConfig, fallback: string, editorial = false): CSSProperties {
   const appearance = section.data?.appearance;
+  if (appearance?.framed === false) return { background: 'transparent', borderColor: 'transparent', borderWidth: 0, boxShadow: 'none' };
   const safeColor = (value: unknown, defaultValue: string) => typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value) ? value : defaultValue;
-  const primary = safeColor(appearance?.primary, '#f8fafc');
+  const selected = appearance?.finish;
+  const finish = selected && selected !== 'default' ? selected
+    : editorial ? ({ bio: 'glass', agenda: 'brushed', proposals: 'graphite' } as Record<string, string>)[section.type] : undefined;
+  const primary = safeColor(appearance?.primary, finish === 'glass' ? '#f1f5f9' : finish === 'graphite' ? '#cbd5e1' : '#f8fafc');
   const secondary = safeColor(appearance?.secondary, '#94a3b8');
-  if (appearance?.finish === 'solid') return { background: primary };
-  if (appearance?.finish === 'gradient') return { background: `linear-gradient(135deg, ${primary}, ${secondary})` };
-  if (appearance?.finish === 'metallic') return {
+  const intensity = Math.min(100, Math.max(0, Number(appearance?.intensity ?? 55)));
+  if (finish === 'glass') return {
+    background: `linear-gradient(145deg, color-mix(in srgb, ${primary} ${65 + intensity * .28}%, transparent), color-mix(in srgb, ${secondary} ${40 + intensity * .35}%, transparent))`,
+    backdropFilter: `blur(${4 + intensity * .17}px)`, borderColor: '#ffffff88',
+    boxShadow: '0 1px 0 #ffffff80 inset, 0 18px 48px #0f172a20',
+  };
+  if (finish === 'graphite') return {
+    background: `repeating-linear-gradient(135deg, #0f172a0a 0 1px, transparent 1px 5px), linear-gradient(145deg, ${primary}, color-mix(in srgb, ${secondary} ${intensity}%, #dbe2ec))`,
+    borderColor: '#64748b70', boxShadow: '0 1px 0 #ffffff70 inset, 0 16px 36px #0f172a24',
+  };
+  if (finish === 'solid') return { background: primary };
+  if (finish === 'gradient') return { background: `linear-gradient(135deg, ${primary}, ${secondary})` };
+  if (finish === 'metallic') return {
     background: `linear-gradient(120deg, ${secondary} 0%, ${primary} 35%, color-mix(in srgb, ${primary} 82%, white) 48%, ${secondary} 65%, ${primary} 100%)`,
+  };
+  if (finish === 'brushed') return {
+    background: `repeating-linear-gradient(105deg, #ffffff35 0 1px, transparent 1px 4px), linear-gradient(120deg, ${secondary}, ${primary} 35%, color-mix(in srgb, ${primary} ${100 - intensity * .5}%, white) 48%, ${secondary} 65%, ${primary})`,
   };
   return { backgroundColor: fallback || '#fff' };
 }

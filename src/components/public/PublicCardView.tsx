@@ -72,6 +72,14 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
   const visibleSections = sections.filter(section => section.enabled);
   const contactVisible = visibleSections.some(section => section.type === 'citizen_form');
   const backdrop = project.backgroundAppearance;
+  const editorial = project.visualPreset === 'cristal-editorial';
+  const firstHero = visibleSections.find(section => section.type === 'hero');
+  const logoPlacement = firstHero ? logos.partyLogoPlacement || 'header' : 'header';
+  const logoInPortada = logos.partyLogoVisible && logos.partyLogoUrl && logoPlacement !== 'header' ? (
+    <div className="profile-party-mark" data-align={logos.partyLogoAlignment || logos.alignment || 'left'}>
+      <img src={logos.partyLogoUrl} alt="Partido" style={{ height: logos.partyLogoSize || 64 }} />
+    </div>
+  ) : null;
   const publicButtons = project.buttons.filter(button => button.enabled && (contactVisible || button.actionType !== 'citizen_form'));
   const rawWhatsApp = project.citizenWhatsApp?.trim() || project.buttons.find(button => button.actionType === 'whatsapp' && button.enabled)?.actionValue
     || visibleSections.find(section => section.type === 'contact')?.data?.whatsapp || '';
@@ -169,11 +177,12 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
         const immersive = section.data?.photoLayout === 'immersive' && Boolean(photo);
         const position = (key: string, fallback: number) => Math.min(100, Math.max(0, Number(section.data?.[key] ?? fallback)));
         return (
-          <section data-module={section.type} data-photo-layout={immersive ? 'immersive' : undefined}
+          <section data-module={section.type} data-framed={section.data?.appearance?.framed === false ? 'false' : undefined} data-photo-layout={immersive ? 'immersive' : undefined}
           data-custom-surface={section.data?.appearance?.finish && section.data.appearance.finish !== 'default' ? 'true' : undefined}
           className="profile-hero rounded-2xl overflow-hidden shadow-sm border border-slate-200/60 p-6 sm:p-8"
-          style={sectionSurface(section, palette.surface)}
+          style={sectionSurface(section, palette.surface, editorial)}
         >
+          {section.id === firstHero?.id && logoPlacement === 'above-photo' && logoInPortada}
           {immersive && <img className="profile-immersive-photo" src={photo} alt={candidate.fullName} style={{
             '--photo-mobile': `${position('photoMobileX', 50)}% ${position('photoMobileY', 35)}%`,
             '--photo-desktop': `${position('photoDesktopX', 50)}% ${position('photoDesktopY', 35)}%`,
@@ -208,6 +217,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
 
             {/* Candidate Info & Slogan */}
             <div className="profile-intro min-w-0 space-y-3">
+              {section.id === firstHero?.id && logoPlacement === 'below-photo' && logoInPortada}
               <div className="space-y-1">
                 {section.subtitle && <p className="profile-kicker" data-format-color={fieldStyle(section, 'subtitle').color ? 'true' : undefined} style={fieldStyle(section, 'subtitle')}>{section.subtitle}</p>}
                 <span
@@ -219,7 +229,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
                 <h1
                   className="text-2xl sm:text-4xl font-extrabold tracking-tight"
                   {...textFormat('name', {
-                    fontFamily: typography.headingFont ? `'${typography.headingFont}', sans-serif` : 'inherit',
+                    fontFamily: editorial ? "'Instrument Sans', Inter, sans-serif" : typography.headingFont ? `'${typography.headingFont}', sans-serif` : 'inherit',
                     color: palette.text,
                     letterSpacing: typography.letterSpacing === 'wide' ? '0.05em' : 'normal',
                   })}
@@ -257,21 +267,21 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
               )}
 
               {/* Quick Action Buttons Row */}
-              <div className="pt-2 flex flex-wrap items-center justify-center md:justify-start gap-2.5">
+              <div className="profile-hero-actions pt-2 flex flex-wrap items-center justify-center md:justify-start gap-2.5">
                 {publicButtons
                   .slice(0, 3)
                   .map((btn) => (
                     <button
                       key={btn.id}
                       onClick={() => handleButtonClick(btn)}
-                      className="profile-action" data-style={btn.style}
+                      className="profile-action" data-style={btn.style} data-action={btn.actionType}
                       style={{
                         '--action-color': btn.bgColor || palette.primary,
                         '--action-text': btn.color || '#fff',
                       } as React.CSSProperties}
                     >
                       {btn.actionType === 'whatsapp' ? (
-                        <MessageCircle className="w-4 h-4" />
+                        editorial ? <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" /></svg> : <MessageCircle className="w-4 h-4" />
                       ) : btn.actionType === 'call' ? (
                         <Phone className="w-4 h-4" />
                       ) : btn.actionType === 'citizen_form' ? (
@@ -294,7 +304,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
         return (
           <section data-module={section.type}
             className="rounded-2xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-4"
-            style={sectionSurface(section, palette.surface)}
+            style={sectionSurface(section, palette.surface, editorial)}
           >
             <SectionHeading section={section} />
             <p className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-wrap" style={fieldStyle(section, 'bioText')}>
@@ -313,7 +323,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
           <section data-module={section.type}
             id="slate-section"
             className="rounded-2xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-6"
-            style={sectionSurface(section, palette.surface)}
+            style={sectionSurface(section, palette.surface, editorial)}
           >
             <SectionHeading section={section} />
             {/* Slate Header Photo */}
@@ -366,7 +376,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
         return (
           <section data-module={section.type}
             className="rounded-2xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-6"
-            style={sectionSurface(section, palette.surface)}
+            style={sectionSurface(section, palette.surface, editorial)}
           >
             <SectionHeading section={section} />
 
@@ -405,12 +415,12 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
           </section>
         );
       case 'gallery':
-        return <section data-module="gallery" className="p-6 space-y-4" style={sectionSurface(section, palette.surface)}>
+        return <section data-module="gallery" className="p-6 space-y-4" style={sectionSurface(section, palette.surface, editorial)}>
           <SectionHeading section={section} />
           <ProfileGallery section={section} />
         </section>;
       case 'contact':
-        return <section data-module="contact" className="p-6 space-y-4" style={sectionSurface(section, palette.surface)}>
+        return <section data-module="contact" className="p-6 space-y-4" style={sectionSurface(section, palette.surface, editorial)}>
           <SectionHeading section={section} />
           <ContactLocation section={section} />
         </section>;
@@ -419,7 +429,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
           <section data-module={section.type}
           id={section.id === visibleSections.find(item => item.type === 'citizen_form')?.id ? 'citizen-form' : undefined}
           className="rounded-2xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-6"
-          style={sectionSurface(section, palette.surface)}
+          style={sectionSurface(section, palette.surface, editorial)}
         >
             <SectionHeading section={section} />
           {formSubmittedFolio ? (
@@ -576,7 +586,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
         return (
           <section data-module={section.type}
             className="rounded-2xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-4"
-            style={sectionSurface(section, palette.surface)}
+            style={sectionSurface(section, palette.surface, editorial)}
           >
             <SectionHeading section={section} />
 
@@ -594,13 +604,14 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
           </section>
         );
       default:
-        return <AdditionalSection section={section} surface={palette.surface} buttons={publicButtons} onButton={handleButtonClick} />;
+        return <AdditionalSection section={section} surface={palette.surface} editorial={editorial} buttons={publicButtons} onButton={handleButtonClick} />;
     }
   };
 
   return (
     <div
       onClick={enterFullscreen}
+      data-visual-preset={editorial ? 'cristal-editorial' : undefined}
       data-family={family.id}
       data-layout={variantIndex}
       data-standalone={isStandalone}
@@ -611,7 +622,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
         '--profile-surface': palette.surface || '#fff',
         '--profile-heading': typography.headingFont ? `'${typography.headingFont}'` : 'system-ui',
         color: palette.text || '#0F172A',
-        fontFamily: typography.bodyFont ? `'${typography.bodyFont}', sans-serif` : 'inherit',
+        fontFamily: editorial ? 'Inter, sans-serif' : typography.bodyFont ? `'${typography.bodyFont}', sans-serif` : 'inherit',
       } as React.CSSProperties}
     >
       {project.backgroundImageUrl && <div className="profile-background" aria-hidden="true">
@@ -647,7 +658,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
                 : 'justify-start'
             }`}
           >
-            {logos.partyLogoVisible && logos.partyLogoUrl && (
+            {logoPlacement === 'header' && logos.partyLogoVisible && logos.partyLogoUrl && (
               <img
                 src={logos.partyLogoUrl}
                 alt="Partido"

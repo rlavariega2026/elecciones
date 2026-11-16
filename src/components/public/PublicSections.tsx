@@ -22,16 +22,17 @@ export function webLink(value?: string) {
   }
 }
 
-export function AdditionalSection({ section, surface, buttons, onButton }: {
+export function AdditionalSection({ section, surface, buttons, onButton, editorial = false }: {
   section: SectionConfig;
   surface: string;
+  editorial?: boolean;
   buttons: InteractiveButton[];
   onButton: (button: InteractiveButton) => void;
 }) {
   const items = Array.isArray(section.data?.items) ? section.data.items : [];
   return (
     <section data-module={section.type} className="rounded-2xl border border-slate-200/60 p-6 sm:p-8 space-y-4"
-      style={sectionSurface(section, surface)}>
+      style={sectionSurface(section, surface, editorial)}>
       <SectionHeading section={section} />
       {(section.data?.text || section.data?.html) && (
         <p className="whitespace-pre-line leading-relaxed" style={fieldStyle(section, 'text')}>{section.data.text || section.data.html}</p>

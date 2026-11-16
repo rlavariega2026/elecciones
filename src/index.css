@@ -131,16 +131,16 @@ body{overflow-x:hidden}
 .election-profile[data-layout="4"] .profile-portrait > div:first-child { aspect-ratio: 1; border-radius: 50%; }
 .election-profile[data-layout="4"] .profile-portrait img { filter: grayscale(1); }
 .election-profile[data-layout="4"] .profile-entry-list li { border-width: 0 0 1px; border-radius: 0; }
-.election-profile[data-family="liderazgo_premium"][data-layout="0"] .profile-hero:not([data-custom-surface="true"]):not([data-photo-layout="immersive"]) {
+.election-profile[data-family="liderazgo_premium"][data-layout="0"] .profile-hero:not([data-framed="false"]):not([data-custom-surface="true"]):not([data-photo-layout="immersive"]) {
   background: radial-gradient(ellipse at 70% 0, #3e352c, #151415 72%);
   color: #f4ece3;
 }
-.election-profile[data-family="liderazgo_premium"][data-layout="0"] .profile-hero:not([data-custom-surface="true"]):not([data-photo-layout="immersive"]) .profile-intro :is(h1, p, span, div):not([data-format-color]) { color: inherit !important; }
-.election-profile[data-family="liderazgo_premium"][data-layout="1"] .profile-hero:not([data-custom-surface="true"]):not([data-photo-layout="immersive"]) {
+.election-profile[data-family="liderazgo_premium"][data-layout="0"] .profile-hero:not([data-framed="false"]):not([data-custom-surface="true"]):not([data-photo-layout="immersive"]) .profile-intro :is(h1, p, span, div):not([data-format-color]) { color: inherit !important; }
+.election-profile[data-family="liderazgo_premium"][data-layout="1"] .profile-hero:not([data-framed="false"]):not([data-custom-surface="true"]):not([data-photo-layout="immersive"]) {
   background: linear-gradient(120deg, #f2e9dc, #fffaf2);
   color: #39291f;
 }
-.election-profile[data-family="liderazgo_premium"][data-layout="1"] .profile-hero:not([data-custom-surface="true"]):not([data-photo-layout="immersive"]) .profile-intro :is(h1, p, span):not([data-format-color]) { color: inherit !important; }
+.election-profile[data-family="liderazgo_premium"][data-layout="1"] .profile-hero:not([data-framed="false"]):not([data-custom-surface="true"]):not([data-photo-layout="immersive"]) .profile-intro :is(h1, p, span):not([data-format-color]) { color: inherit !important; }
 @container (max-width: 599px) {
   .profile-content { gap: .9rem; }
   .profile-content > section:not([data-module="hero"]) { padding: 1rem; }
@@ -229,3 +229,39 @@ body{overflow-x:hidden}
     object-position: var(--photo-desktop, 50% 35%);
   }
 }
+
+.profile-party-mark { display: flex; justify-content: flex-start; padding: .75rem clamp(1rem, 4cqw, 2rem); }
+.profile-intro .profile-party-mark { padding-inline: 0; }
+.election-profile .profile-party-mark[data-align="center"] { justify-content: center; }
+.election-profile .profile-party-mark[data-align="right"] { justify-content: flex-end; }
+.election-profile .profile-party-mark[data-align="left"] { justify-content: flex-start; }
+.profile-party-mark img { max-width: min(100%, 22rem); object-fit: contain; }
+
+.election-profile[data-visual-preset="cristal-editorial"] {
+  --profile-radius: 1.5rem;
+  --profile-gap: clamp(1rem, 3cqw, 2.5rem);
+  --profile-heading: 'Instrument Sans', Inter, sans-serif;
+}
+.election-profile[data-visual-preset="cristal-editorial"] .profile-intro h1 {
+  font-size: clamp(2.15rem, 6.9cqw, 4.8rem);
+  font-weight: 700;
+  letter-spacing: -.045em;
+}
+.election-profile[data-visual-preset="cristal-editorial"] .profile-hero-actions .profile-action {
+  min-height: 48px;
+  padding: .75rem 1.1rem;
+  border-radius: 1rem;
+  font-size: .875rem;
+}
+.election-profile[data-visual-preset="cristal-editorial"] .profile-hero-actions [data-action="whatsapp"] {
+  flex-basis: 100%;
+  background: color-mix(in srgb, var(--action-color, #117044) 73%, #07130c);
+  color: var(--action-text, #fff);
+}
+.election-profile[data-visual-preset="cristal-editorial"] .profile-hero-actions .profile-action:not([data-action="whatsapp"]) {
+  background: transparent;
+  color: var(--action-color, var(--profile-accent, #172554));
+  border-color: currentColor;
+}
+.election-profile[data-visual-preset="cristal-editorial"] .profile-gallery { grid-auto-columns: min(88%, 42rem); gap: 1rem; }
+.election-profile[data-visual-preset="cristal-editorial"] .profile-gallery-tile { border-radius: 1.4rem; }

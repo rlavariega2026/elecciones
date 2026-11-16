@@ -176,7 +176,7 @@ export const LogosTab: React.FC<LogosTabProps> = ({ project, onChange }) => {
                 <input
                   type="range"
                   min="32"
-                  max="140"
+                  max={logos.partyLogoPlacement && logos.partyLogoPlacement !== 'header' ? 220 : 140}
                   value={logos.partyLogoSize || 64}
                   onChange={(e) => handleLogoChange('partyLogoSize', parseInt(e.target.value, 10))}
                   className="flex-1 cursor-pointer"
@@ -184,6 +184,26 @@ export const LogosTab: React.FC<LogosTabProps> = ({ project, onChange }) => {
               </div>
             </div>
           </div>
+        </div>
+
+        <div className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4 sm:grid-cols-2">
+          <label className="block font-semibold">Ubicación del logo del partido
+            <select className="mt-1 block w-full rounded-lg border border-slate-200 p-2"
+              value={logos.partyLogoPlacement || 'header'}
+              onChange={event => handleLogoChange('partyLogoPlacement', event.target.value as typeof logos.partyLogoPlacement)}>
+              <option value="header">Cabecera</option><option value="above-photo">Encima de la foto</option>
+              <option value="below-photo">En la portada, junto a los datos</option>
+            </select>
+          </label>
+          {logos.partyLogoPlacement && logos.partyLogoPlacement !== 'header' && (
+            <label className="block font-semibold">Alineación del logo
+              <select className="mt-1 block w-full rounded-lg border border-slate-200 p-2"
+                value={logos.partyLogoAlignment || logos.alignment || 'left'}
+                onChange={event => handleLogoChange('partyLogoAlignment', event.target.value as typeof logos.partyLogoAlignment)}>
+                <option value="left">Izquierda</option><option value="center">Centro</option><option value="right">Derecha</option>
+              </select>
+            </label>
+          )}
         </div>
 
         {/* 2. Logotipo Personal del Candidato */}

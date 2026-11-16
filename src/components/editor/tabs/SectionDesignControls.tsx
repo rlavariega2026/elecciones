@@ -9,17 +9,19 @@ interface SectionDesignProps {
 export function SectionBackgroundControls({ section, onChange }: SectionDesignProps) {
   const { data } = section;
   const appearance = data.appearance || {};
-  const setAppearance = (changes: Record<string, string>) => onChange({ ...data, appearance: { ...appearance, ...changes } });
+  const setAppearance = (changes: Record<string, string | number | boolean>) => onChange({ ...data, appearance: { ...appearance, ...changes } });
   return (
     <fieldset className="col-span-full space-y-2 rounded-lg border border-slate-200 p-3">
       <legend className="font-semibold">Fondo de este recuadro</legend>
-      <label>Acabado <select value={appearance.finish || 'default'} onChange={event => setAppearance({ finish: event.target.value })}>
+      <label className="block"><input type="checkbox" checked={appearance.framed !== false} onChange={event => setAppearance({ framed: event.target.checked })} /> Mostrar recuadro</label>
+      <label>Acabado <select disabled={appearance.framed === false} value={appearance.finish || 'default'} onChange={event => setAppearance({ finish: event.target.value })}>
         <option value="default">De la plantilla</option><option value="solid">Sólido</option>
-        <option value="gradient">Degradado</option><option value="metallic">Metálico</option>
+        <option value="gradient">Degradado</option><option value="metallic">Metálico</option><option value="brushed">Metal cepillado</option><option value="glass">Cristal</option><option value="graphite">Grafito</option>
       </select></label>
-      {appearance.finish && appearance.finish !== 'default' && <div className="flex flex-wrap items-center gap-3">
+      {appearance.framed !== false && appearance.finish && appearance.finish !== 'default' && <div className="flex flex-wrap items-center gap-3">
         <label>Color principal <input type="color" value={appearance.primary || '#f8fafc'} onChange={event => setAppearance({ primary: event.target.value })} /></label>
         {appearance.finish !== 'solid' && <label>Color secundario <input type="color" value={appearance.secondary || '#94a3b8'} onChange={event => setAppearance({ secondary: event.target.value })} /></label>}
+        {["glass", "brushed", "graphite"].includes(appearance.finish) && <label>Intensidad <input type="range" min="0" max="100" value={appearance.intensity ?? 55} onChange={event => setAppearance({ intensity: Number(event.target.value) })} /></label>}
         <span className="inline-block h-8 w-20 rounded-md border border-slate-300" style={sectionSurface(section, '#ffffff')} aria-label="Muestra de fondo" />
       </div>}
     </fieldset>
