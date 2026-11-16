@@ -103,7 +103,6 @@ body{overflow-x:hidden}
 }
 .profile-portrait > div:first-child.rounded-full { aspect-ratio: 1; }
 .profile-portrait img { object-position: center 34%; }
-.profile-portrait > div:last-child { max-width: 98%; text-align: center; white-space: normal; }
 .profile-intro h1 { font-size: clamp(1.8rem, 5.7cqw, 3.7rem); line-height: 1.02; text-wrap: balance; }
 .profile-intro button, .profile-mobile-actions button { min-height: 44px; }
 .profile-section-heading h2 { font: 750 clamp(1.25rem, 3.6cqw, 2rem)/1.15 var(--profile-heading), system-ui; text-wrap: balance; }
@@ -132,16 +131,16 @@ body{overflow-x:hidden}
 .election-profile[data-layout="4"] .profile-portrait > div:first-child { aspect-ratio: 1; border-radius: 50%; }
 .election-profile[data-layout="4"] .profile-portrait img { filter: grayscale(1); }
 .election-profile[data-layout="4"] .profile-entry-list li { border-width: 0 0 1px; border-radius: 0; }
-.election-profile[data-family="liderazgo_premium"][data-layout="0"] .profile-hero {
+.election-profile[data-family="liderazgo_premium"][data-layout="0"] .profile-hero:not([data-custom-surface="true"]):not([data-photo-layout="immersive"]) {
   background: radial-gradient(ellipse at 70% 0, #3e352c, #151415 72%);
   color: #f4ece3;
 }
-.election-profile[data-family="liderazgo_premium"][data-layout="0"] .profile-intro :is(h1, p, span, div):not([data-format-color]) { color: inherit !important; }
-.election-profile[data-family="liderazgo_premium"][data-layout="1"] .profile-hero {
+.election-profile[data-family="liderazgo_premium"][data-layout="0"] .profile-hero:not([data-custom-surface="true"]):not([data-photo-layout="immersive"]) .profile-intro :is(h1, p, span, div):not([data-format-color]) { color: inherit !important; }
+.election-profile[data-family="liderazgo_premium"][data-layout="1"] .profile-hero:not([data-custom-surface="true"]):not([data-photo-layout="immersive"]) {
   background: linear-gradient(120deg, #f2e9dc, #fffaf2);
   color: #39291f;
 }
-.election-profile[data-family="liderazgo_premium"][data-layout="1"] .profile-intro :is(h1, p, span):not([data-format-color]) { color: inherit !important; }
+.election-profile[data-family="liderazgo_premium"][data-layout="1"] .profile-hero:not([data-custom-surface="true"]):not([data-photo-layout="immersive"]) .profile-intro :is(h1, p, span):not([data-format-color]) { color: inherit !important; }
 @container (max-width: 599px) {
   .profile-content { gap: .9rem; }
   .profile-content > section:not([data-module="hero"]) { padding: 1rem; }
@@ -204,4 +203,16 @@ body{overflow-x:hidden}
 .profile-video span { z-index: 1; display: grid; place-items: center; width: 3.5rem; aspect-ratio: 1; border-radius: 50%; background: #0f172ae6; color: white; border: 1px solid #ffffff80; }
 @media (prefers-reduced-motion: reduce) {
   .profile-action, .profile-social, .profile-gallery-tile img { transition: none; }
+}
+
+.election-profile .profile-hero[data-photo-layout="immersive"] { position: relative; isolation: isolate; display: grid; align-items: end; min-height: clamp(26rem, 65cqw, 44rem); padding: 0; overflow: hidden; }
+.profile-immersive-photo { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; object-position: var(--photo-mobile, 50% 35%); }
+.profile-hero[data-photo-layout="immersive"]::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, transparent 18%, #02061745 50%, #020617ed); pointer-events: none; }
+.election-profile .profile-hero[data-photo-layout="immersive"] .profile-hero-layout { grid-template-columns: minmax(0, 1fr); }
+.election-profile .profile-hero[data-photo-layout="immersive"] .profile-intro { grid-column: 1; grid-row: 1; padding: clamp(1rem, 5cqw, 3.25rem); color: #fff; width: 100%; }
+.profile-hero[data-photo-layout="immersive"] .profile-intro :is(h1, p, span, div):not([data-format-color]) { color: inherit !important; }
+.profile-hero[data-photo-layout="immersive"] .profile-intro svg { color: currentColor; }
+@container (min-width: 600px) {
+  .profile-immersive-photo { object-position: var(--photo-desktop, 50% 35%); }
+  .election-profile .profile-hero[data-photo-layout="immersive"] .profile-intro { max-width: 45rem; }
 }

@@ -1,4 +1,4 @@
-import { fieldStyle, profileSections } from '../../utils/profilePresentation';
+import { fieldStyle, profileSections, sectionSurface } from '../../utils/profilePresentation';
 import React, { useState, useEffect } from 'react';
 import { Project, SectionConfig, SlateMember } from '../../types';
 import { DESIGN_FAMILIES } from '../../data/templates';
@@ -159,17 +159,23 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
 
   const renderSection = (section: SectionConfig) => {
     switch (section.type) {
-      case 'hero':
+      case 'hero': {
+        const photo = candidate.heroPhotoUrl || candidate.coverPhotoUrl;
+        const immersive = section.data?.photoLayout === 'immersive' && Boolean(photo);
+        const position = (key: string, fallback: number) => Math.min(100, Math.max(0, Number(section.data?.[key] ?? fallback)));
         return (
-          <section data-module={section.type}
+          <section data-module={section.type} data-photo-layout={immersive ? 'immersive' : undefined}
+          data-custom-surface={section.data?.appearance?.finish && section.data.appearance.finish !== 'default' ? 'true' : undefined}
           className="profile-hero rounded-2xl overflow-hidden shadow-sm border border-slate-200/60 p-6 sm:p-8"
-          style={{
-            backgroundColor: palette.surface || '#FFFFFF',
-          }}
+          style={sectionSurface(section, palette.surface)}
         >
+          {immersive && <img className="profile-immersive-photo" src={photo} alt={candidate.fullName} style={{
+            '--photo-mobile': `${position('photoMobileX', 50)}% ${position('photoMobileY', 35)}%`,
+            '--photo-desktop': `${position('photoDesktopX', 50)}% ${position('photoDesktopY', 35)}%`,
+          } as React.CSSProperties} />}
           <div className="profile-hero-layout">
             {/* Candidate Photo */}
-            <div className="profile-portrait relative shrink-0">
+            {!immersive && <div className="profile-portrait relative shrink-0">
               <div
                 className={`overflow-hidden shadow-md border-2 ${
                   candidate.heroPhotoStyle === 'circle'
@@ -193,20 +199,12 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
                 )}
               </div>
 
-              {/* Stage Badge */}
-              {!section.data?.hideStage && <div
-                className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[11px] font-bold text-white shadow-md uppercase tracking-wider whitespace-nowrap"
-                style={{ backgroundColor: palette.primary, ...fieldStyle(section, 'stage') }}
-              >
-                {section.data?.stageLabel || project.stage.replace(/_/g, ' ')}
-              </div>}
-            </div>
+            </div>}
 
             {/* Candidate Info & Slogan */}
             <div className="profile-intro min-w-0 space-y-3">
               <div className="space-y-1">
                 {section.subtitle && <p className="profile-kicker" data-format-color={fieldStyle(section, 'subtitle').color ? 'true' : undefined} style={fieldStyle(section, 'subtitle')}>{section.subtitle}</p>}
-                {section.title && <p className="profile-kicker" data-format-color={fieldStyle(section, 'heading').color ? 'true' : undefined} style={fieldStyle(section, 'heading')}>{section.title}</p>}
                 <span
                   className="text-xs font-bold uppercase tracking-widest block"
                   style={{ color: palette.primary }}
@@ -286,15 +284,16 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
           </div>
         </section>
         );
+      }
       case 'bio':
         return (
           <section data-module={section.type}
             className="rounded-2xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-4"
-            style={{ backgroundColor: palette.surface || '#FFFFFF' }}
+            style={sectionSurface(section, palette.surface)}
           >
             <SectionHeading section={section} />
-            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">
-              {candidate.bio}
+            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-wrap" style={fieldStyle(section, 'bioText')}>
+              {section.data?.bioText ?? candidate.bio}
             </p>
 
             {candidate.quote && (
@@ -309,7 +308,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
           <section data-module={section.type}
             id="slate-section"
             className="rounded-2xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-6"
-            style={{ backgroundColor: palette.surface || '#FFFFFF' }}
+            style={sectionSurface(section, palette.surface)}
           >
             <SectionHeading section={section} />
             {/* Slate Header Photo */}
@@ -362,7 +361,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
         return (
           <section data-module={section.type}
             className="rounded-2xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-6"
-            style={{ backgroundColor: palette.surface || '#FFFFFF' }}
+            style={sectionSurface(section, palette.surface)}
           >
             <SectionHeading section={section} />
 
@@ -375,8 +374,8 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
                   key={prop.id || idx}
                   className="p-4 rounded-xl border border-slate-200/80 bg-slate-50/50 space-y-2 hover:bg-white transition-colors"
                 >
-                  <span
-                    className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded"
+                  <div
+                    className="w-full text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded"
                     style={{
                       backgroundColor: `${palette.primary}1A`,
                       color: palette.primary,
@@ -384,7 +383,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
                     }}
                   >
                     {prop.pillar || 'Eje Prioritario'}
-                  </span>
+                  </div>
                   <h3 className="font-bold text-sm text-slate-900" style={fieldStyle(section, 'title', prop)}>{prop.title}</h3>
                   <p className="text-xs text-slate-600 leading-relaxed" style={fieldStyle(section, 'description', prop)}>
                     {prop.description}
@@ -401,12 +400,12 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
           </section>
         );
       case 'gallery':
-        return <section data-module="gallery" className="p-6 space-y-4" style={{ backgroundColor: palette.surface || '#fff' }}>
+        return <section data-module="gallery" className="p-6 space-y-4" style={sectionSurface(section, palette.surface)}>
           <SectionHeading section={section} />
           <ProfileGallery section={section} />
         </section>;
       case 'contact':
-        return <section data-module="contact" className="p-6 space-y-4" style={{ backgroundColor: palette.surface || '#fff' }}>
+        return <section data-module="contact" className="p-6 space-y-4" style={sectionSurface(section, palette.surface)}>
           <SectionHeading section={section} />
           <ContactLocation section={section} />
         </section>;
@@ -415,7 +414,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
           <section data-module={section.type}
           id={section.id === visibleSections.find(item => item.type === 'citizen_form')?.id ? 'citizen-form' : undefined}
           className="rounded-2xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-6"
-          style={{ backgroundColor: palette.surface || '#FFFFFF' }}
+          style={sectionSurface(section, palette.surface)}
         >
             <SectionHeading section={section} />
           {formSubmittedFolio ? (
@@ -572,7 +571,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
         return (
           <section data-module={section.type}
             className="rounded-2xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-4"
-            style={{ backgroundColor: palette.surface || '#FFFFFF' }}
+            style={sectionSurface(section, palette.surface)}
           >
             <SectionHeading section={section} />
 

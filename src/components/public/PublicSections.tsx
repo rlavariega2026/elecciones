@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, MapPin, Play, X } from 'lucide-react';
-import { fieldStyle, legacyNetwork, socialNetworks } from '../../utils/profilePresentation';
+import { fieldStyle, legacyNetwork, socialNetworks, sectionSurface } from '../../utils/profilePresentation';
 import { InteractiveButton, SectionConfig } from '../../types';
 
 export function SectionHeading({ section }: { section: SectionConfig }) {
@@ -31,7 +31,7 @@ export function AdditionalSection({ section, surface, buttons, onButton }: {
   const items = Array.isArray(section.data?.items) ? section.data.items : [];
   return (
     <section data-module={section.type} className="rounded-2xl border border-slate-200/60 p-6 sm:p-8 space-y-4"
-      style={{ backgroundColor: surface || '#fff' }}>
+      style={sectionSurface(section, surface)}>
       <SectionHeading section={section} />
       {(section.data?.text || section.data?.html) && (
         <p className="whitespace-pre-line leading-relaxed" style={fieldStyle(section, 'text')}>{section.data.text || section.data.html}</p>
@@ -63,6 +63,9 @@ export function AdditionalSection({ section, surface, buttons, onButton }: {
         <ul className="profile-entry-list">
           {items.map((item, index) => {
             const link = webLink(item.fileUrl || item.embedUrl || item.url || item.link);
+            const map = section.type === 'agenda'
+              ? link || (item.location ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}` : undefined)
+              : undefined;
             const thumbnail = section.type === 'videos' && link ? youtubeThumbnail(link) : undefined;
             return (
               <li key={item.id || index}>
@@ -73,7 +76,10 @@ export function AdditionalSection({ section, surface, buttons, onButton }: {
                 {['year','date','time','institution','location'].map(field => item[field] && <p key={field} className="profile-kicker" style={fieldStyle(section, field, item)}>{item[field]}</p>)}
                 {item.title && <h3 className="font-bold" style={fieldStyle(section, 'title', item)}>{item.title}</h3>}
                 {item.description && <p className="mt-1 whitespace-pre-line leading-relaxed" style={fieldStyle(section, 'description', item)}>{item.description}</p>}
-                {link && section.type !== 'videos' && <a href={link} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block font-semibold underline">
+                {map && <a href={map} target="_blank" rel="noopener noreferrer" className="profile-action mt-2" data-style="outline">
+                  <MapPin size={18} /> Ubicación
+                </a>}
+                {link && section.type !== 'videos' && section.type !== 'agenda' && <a href={link} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block font-semibold underline">
                   {section.type === 'documents' ? 'Abrir documento' : 'Abrir enlace'}
                 </a>}
               </li>

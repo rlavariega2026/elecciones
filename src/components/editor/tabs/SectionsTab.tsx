@@ -1,5 +1,5 @@
 import { profileSections } from '../../../utils/profilePresentation';
-import { SectionContentFields } from './SectionContentFields';
+import { SectionContentFields, type GalleryPhoto } from './SectionContentFields';
 import React, { useState } from 'react';
 import { Project, SectionConfig, SectionType } from '../../../types';
 import {
@@ -18,6 +18,8 @@ import {
 interface SectionsTabProps {
   project: Project;
   onChange: (updated: Partial<Project>) => void;
+  onPhotoRead: (delta: 1 | -1) => void;
+  onAddPhotos: (id: string, photos: GalleryPhoto[]) => void;
 }
 
 const AVAILABLE_SECTION_TYPES: Array<{ type: SectionType; title: string; defaultSubtitle: string }> = [
@@ -43,7 +45,7 @@ const AVAILABLE_SECTION_TYPES: Array<{ type: SectionType; title: string; default
   { type: 'custom_html', title: 'Módulo Personalizado', defaultSubtitle: 'Contenido adicional específico' },
 ];
 
-export const SectionsTab: React.FC<SectionsTabProps> = ({ project, onChange }) => {
+export const SectionsTab: React.FC<SectionsTabProps> = ({ project, onChange, onPhotoRead, onAddPhotos }) => {
   const sections = profileSections(project);
   const [expandedSecId, setExpandedSecId] = useState<string | null>(null);
 
@@ -271,7 +273,8 @@ export const SectionsTab: React.FC<SectionsTabProps> = ({ project, onChange }) =
                         />
                       </div>
                     </div>
-                    <SectionContentFields section={sec} onChange={data =>
+                    <SectionContentFields section={sec} bio={project.candidate.bio} onPhotoRead={onPhotoRead}
+                      onAddPhotos={photos => onAddPhotos(sec.id, photos)} onChange={data =>
                       handleSectionsChange(sections.map(section => section.id === sec.id ? { ...section, data } : section))
                     } />
                   </div>

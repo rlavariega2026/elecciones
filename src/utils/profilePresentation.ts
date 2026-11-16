@@ -40,3 +40,16 @@ export function legacyNetwork(item: { title?: string; url?: string; link?: strin
     (key === 'x' && (name === 'twitter' || url.includes('twitter.com'))) ||
     (key === 'youtube' && url.includes('youtu.be')))?.[0];
 }
+
+export function sectionSurface(section: SectionConfig, fallback: string): CSSProperties {
+  const appearance = section.data?.appearance;
+  const safeColor = (value: unknown, defaultValue: string) => typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value) ? value : defaultValue;
+  const primary = safeColor(appearance?.primary, '#f8fafc');
+  const secondary = safeColor(appearance?.secondary, '#94a3b8');
+  if (appearance?.finish === 'solid') return { background: primary };
+  if (appearance?.finish === 'gradient') return { background: `linear-gradient(135deg, ${primary}, ${secondary})` };
+  if (appearance?.finish === 'metallic') return {
+    background: `linear-gradient(120deg, ${secondary} 0%, ${primary} 35%, color-mix(in srgb, ${primary} 82%, white) 48%, ${secondary} 65%, ${primary} 100%)`,
+  };
+  return { backgroundColor: fallback || '#fff' };
+}

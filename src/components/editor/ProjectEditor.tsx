@@ -53,6 +53,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
 
   const [deviceMode, setDeviceMode] = useState<'mobile' | 'tablet' | 'desktop'>('mobile');
   const [saving, setSaving] = useState(false);
+  const [photoReads, setPhotoReads] = useState(0);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
   const [showPublishPanel, setShowPublishPanel] = useState(false);
@@ -257,13 +258,13 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
             className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-violet-700 hover:bg-violet-800 text-white">
             <Send className="w-3.5 h-3.5 inline mr-1" /> Publicar
           </button>
-          <button onClick={handleSaveAs} disabled={saving}
+          <button onClick={handleSaveAs} disabled={saving || photoReads > 0}
             className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-300 text-slate-800">
             Guardar como
           </button>
           <button
             onClick={handleSave}
-            disabled={saving}
+            disabled={saving || photoReads > 0}
             className="px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
           >
             {savedSuccess ? (
@@ -299,8 +300,8 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
             <button className="text-xs underline" onClick={async () => { await navigator.clipboard.writeText(publishUrl); setCopiedLink(true); }}> {copiedLink ? 'Copiado' : 'Copiar enlace'}</button>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <button disabled={saving} onClick={() => handlePublishVersion(true)} className="bg-violet-700 text-white rounded-lg px-4 py-2 text-xs font-semibold">Publicar DEMO en Hostinger</button>
-            <button disabled={saving} onClick={() => handlePublishVersion(false)} className="bg-slate-900 text-white rounded-lg px-4 py-2 text-xs font-semibold">Publicar definitiva en Hostinger</button>
+            <button disabled={saving || photoReads > 0} onClick={() => handlePublishVersion(true)} className="bg-violet-700 text-white rounded-lg px-4 py-2 text-xs font-semibold">Publicar DEMO en Hostinger</button>
+            <button disabled={saving || photoReads > 0} onClick={() => handlePublishVersion(false)} className="bg-slate-900 text-white rounded-lg px-4 py-2 text-xs font-semibold">Publicar definitiva en Hostinger</button>
           </div>
         </section>
       )}
@@ -345,7 +346,11 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
             {activeTab === 'candidate' && <CandidateTab project={project} onChange={handleUpdate} />}
             {activeTab === 'templates' && <TemplatesTab project={project} onChange={handleUpdate} />}
             {activeTab === 'slate' && <SlateTab project={project} onChange={handleUpdate} />}
-            {activeTab === 'sections' && <SectionsTab project={project} onChange={handleUpdate} />}
+            {activeTab === 'sections' && <SectionsTab project={project} onChange={handleUpdate}
+              onPhotoRead={delta => setPhotoReads(count => count + delta)}
+              onAddPhotos={(id, photos) => setProject(current => ({ ...current, sections: (current.sections || []).map(section =>
+                section.id === id ? { ...section, data: { ...section.data, images: [...(section.data.images || []), ...photos] } } : section
+              ) }))} />}
             {activeTab === 'buttons' && <ButtonsTab project={project} onChange={handleUpdate} />}
             {activeTab === 'ai' && <AiAssistantTab project={project} onChange={handleUpdate} />}
           </div>

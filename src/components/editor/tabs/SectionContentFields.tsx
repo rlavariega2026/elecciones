@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { PROFESSIONAL_FONTS } from '../../../data/fonts';
-import { legacyNetwork, socialNetworks } from '../../../utils/profilePresentation';
+import { legacyNetwork, socialNetworks, sectionSurface } from '../../../utils/profilePresentation';
 import { SectionConfig } from '../../../types';
 
 const fieldLabels: Record<string, string> = {
@@ -27,37 +27,76 @@ function TextControls({ value = {}, onChange }: { value?: Record<string, any>; o
   </details>;
 }
 
+export type GalleryPhoto = { id: string; url: string; caption: string };
+
 function readPhoto(file: File) {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
+    reader.onload = () => {
+      const dataUrl = String(reader.result);
+      const kind = file.name.toLowerCase().match(/\.(jpe?g|png|webp|gif|avif)$/)?.[1];
+      const mime = kind ? `image/${/^jpe?g$/.test(kind) ? 'jpeg' : kind}` : '';
+      if (/^data:image\/(jpeg|png|webp|gif|avif);base64,/.test(dataUrl)) resolve(dataUrl);
+      else if (mime && /^data:(?:application\/octet-stream|image\/jpg)?;base64,/.test(dataUrl)) {
+        resolve(dataUrl.replace(/^data:[^;]*;/, `data:${mime};`));
+      } else reject(new Error(`${file.name}: usa JPG, PNG, WebP, GIF o AVIF.`));
+    };
     reader.onerror = () => reject(reader.error);
     reader.readAsDataURL(file);
   });
 }
 
-export function SectionContentFields({ section, onChange }: {
+export function SectionContentFields({ section, bio, onChange, onPhotoRead, onAddPhotos }: {
   section: SectionConfig;
+  bio: string;
+  onPhotoRead: (delta: 1 | -1) => void;
+  onAddPhotos: (photos: GalleryPhoto[]) => void;
   onChange: (data: SectionConfig['data']) => void;
 }) {
   const { type, data } = section;
-  const latest = useRef({ data, onChange });
-  latest.current = { data, onChange };
+  const photoPicker = useRef<HTMLInputElement>(null);
   const [photoError, setPhotoError] = useState('');
   const [reading, setReading] = useState(false);
   const fieldFormat = (field: string) => <TextControls value={data.textStyles?.[field]}
     onChange={style => onChange({ ...data, textStyles: { ...data.textStyles, [field]: style } })} />;
+  const appearance = data.appearance || {};
+  const setAppearance = (changes: Record<string, string>) => onChange({ ...data, appearance: { ...appearance, ...changes } });
   const heading = <div className="grid gap-2 sm:grid-cols-2">
     <div>Título visible{fieldFormat('heading')}</div>
     <div>Subtítulo o kicker{fieldFormat('subtitle')}</div>
+    <fieldset className="col-span-full space-y-2 rounded-lg border border-slate-200 p-3">
+      <legend className="font-semibold">Fondo de este recuadro</legend>
+      <label>Acabado <select value={appearance.finish || 'default'} onChange={event => setAppearance({ finish: event.target.value })}>
+        <option value="default">De la plantilla</option><option value="solid">Sólido</option>
+        <option value="gradient">Degradado</option><option value="metallic">Metálico</option>
+      </select></label>
+      {appearance.finish && appearance.finish !== 'default' && <div className="flex flex-wrap items-center gap-3">
+        <label>Color principal <input type="color" value={appearance.primary || '#f8fafc'} onChange={event => setAppearance({ primary: event.target.value })} /></label>
+        {appearance.finish !== 'solid' && <label>Color secundario <input type="color" value={appearance.secondary || '#94a3b8'} onChange={event => setAppearance({ secondary: event.target.value })} /></label>}
+        <span className="inline-block h-8 w-20 rounded-md border border-slate-300" style={sectionSurface(section, '#ffffff')} aria-label="Muestra de fondo" />
+      </div>}
+    </fieldset>
   </div>;
   if (type === 'hero') return <div className="space-y-3">{heading}
-    <label className="block">Rótulo de etapa
-      <input className="block w-full rounded-lg border bg-white p-2" value={data.stageLabel ?? ''}
-        placeholder="Etapa predeterminada" onChange={e => onChange({ ...data, stageLabel: e.target.value })} />
+    <label className="block">Presentación de foto principal
+      <select className="block w-full rounded-lg border bg-white p-2" value={data.photoLayout || 'portrait'} onChange={event => onChange({ ...data, photoLayout: event.target.value })}>
+        <option value="portrait">Presentación de la plantilla</option><option value="immersive">Foto inmersiva</option>
+      </select>
     </label>
-    <label><input type="checkbox" checked={data.hideStage === true} onChange={e => onChange({ ...data, hideStage: e.target.checked })} /> Ocultar rótulo</label>
-    {fieldFormat('stage')}
+    {data.photoLayout === 'immersive' && ([
+      ['photoMobileX', 'Horizontal en celular', 50], ['photoMobileY', 'Vertical en celular', 35],
+      ['photoDesktopX', 'Horizontal en escritorio', 50], ['photoDesktopY', 'Vertical en escritorio', 35],
+    ] as const).map(([key, label, fallback]) => <label key={key} className="block">{label} · {data[key] ?? fallback}%
+      <input className="block w-full" type="range" min="0" max="100" value={data[key] ?? fallback}
+        onChange={event => onChange({ ...data, [key]: Number(event.target.value) })} />
+    </label>)}
+  </div>;
+  if (type === 'bio') return <div className="space-y-3">{heading}
+    <label className="block font-semibold">Texto de la semblanza
+      <textarea className="block w-full rounded-lg border border-slate-200 bg-white p-2 font-normal" rows={7}
+        value={data.bioText ?? bio ?? ''} onChange={event => onChange({ ...data, bioText: event.target.value })} />
+    </label>
+    {fieldFormat('bioText')}
   </div>;
   if (type === 'contact') return <div className="space-y-3">{heading}
     {([['address','Dirección'],['mapUrl','Enlace de Google Maps']] as const).map(([key,label]) => <label key={key} className="block">{label}
@@ -71,7 +110,7 @@ export function SectionContentFields({ section, onChange }: {
         placeholder="https://" onChange={e => onChange({ ...data, socialLinks: { ...data.socialLinks, [key]: e.target.value } })} />
     </label>)}
   </div>;
-  if (['bio', 'citizen_form', 'slate', 'custom_buttons'].includes(type)) return heading;
+  if (['citizen_form', 'slate', 'custom_buttons'].includes(type)) return heading;
   if (type === 'custom_html') {
     return <>{heading}<label className="block space-y-1 font-semibold">Contenido
       <textarea rows={5} value={data.text ?? data.html ?? ''} onChange={e => onChange({ ...data, text: e.target.value })}
@@ -90,33 +129,45 @@ export function SectionContentFields({ section, onChange }: {
   return (
     <div className="space-y-3">
       {heading}
-      {type === 'gallery' && <label className="block font-semibold">Subir una o varias fotos
-        <input className="block w-full" type="file" multiple disabled={reading} accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+      {type === 'gallery' && <div className="space-y-2">
+        <button type="button" disabled={reading} onClick={() => photoPicker.current?.click()} className="rounded-xl bg-slate-900 px-4 py-2 text-white font-semibold">
+          Subir una o varias fotos
+        </button>
+        <input ref={photoPicker} className="sr-only" tabIndex={-1} aria-label="Seleccionar archivos de fotos" type="file" multiple disabled={reading} accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
           onChange={async event => {
             const files = Array.from(event.currentTarget.files || []);
-            event.currentTarget.value = '';
+            const input = event.currentTarget;
             if (!files.length) return;
             setReading(true);
+            onPhotoRead(1);
             setPhotoError('');
             try {
-              const photos = [];
-              for (const file of files) photos.push({ id: crypto.randomUUID(), url: await readPhoto(file), caption: '' });
-              const current = latest.current;
-              current.onChange({ ...current.data, images: [...(current.data.images || []), ...photos] });
-            } catch {
-              setPhotoError('No se pudieron leer las fotos seleccionadas.');
+              const photos: GalleryPhoto[] = [];
+              const errors: string[] = [];
+              for (const file of files) {
+                try {
+                  photos.push({ id: `foto-${Date.now()}-${Math.random().toString(36).slice(2)}`, url: await readPhoto(file), caption: '' });
+                } catch (error) {
+                  errors.push(error instanceof Error ? error.message : `No se pudo leer ${file.name}.`);
+                }
+              }
+              if (photos.length) onAddPhotos(photos);
+              setPhotoError(errors.join(' '));
             } finally {
+              input.value = '';
+              onPhotoRead(-1);
               setReading(false);
             }
           }} />
         {reading && <span role="status">Leyendo fotos…</span>}
         {photoError && <span role="alert">{photoError}</span>}
-      </label>}
+      </div>}
       {items.map((item, index) => (
         <fieldset key={item.id || index} className="grid gap-2 rounded-xl border border-slate-200 bg-white p-3 sm:grid-cols-2">
-          {fields.map(field => (
+          {type === 'gallery' && item.url && <img src={item.url} alt={item.caption || 'Foto seleccionada'} className="h-24 w-full rounded-lg object-cover sm:col-span-2" />}
+          {fields.filter(field => !(type === 'gallery' && field === 'url' && typeof item.url === 'string' && item.url.startsWith('data:'))).map(field => (
             <div key={field} className="space-y-1"><label className="block space-y-1">
-              <span className="font-semibold">{field === 'url' && type === 'gallery' ? 'URL de la foto' : fieldLabels[field]}</span>
+              <span className="font-semibold">{field === 'url' && type === 'gallery' ? 'URL de la foto' : field === 'url' && type === 'agenda' ? 'Ubicación (enlace de Google Maps)' : fieldLabels[field]}</span>
               <input value={item[field] ?? ''} onChange={e => setItems(items.map((row, at) => at === index ? { ...row, [field]: e.target.value } : row))}
                 className="block w-full rounded-lg border border-slate-200 p-2" />
             </label>
