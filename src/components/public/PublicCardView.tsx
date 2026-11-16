@@ -160,6 +160,11 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
   const renderSection = (section: SectionConfig) => {
     switch (section.type) {
       case 'hero': {
+        const textFormat = (field: string, defaults?: React.CSSProperties) => {
+          const format = fieldStyle(section, field);
+          const overrides = Object.fromEntries(Object.entries(format).filter(([, value]) => value !== undefined));
+          return { style: { ...defaults, ...overrides }, 'data-format-color': format.color ? 'true' : undefined };
+        };
         const photo = candidate.heroPhotoUrl || candidate.coverPhotoUrl;
         const immersive = section.data?.photoLayout === 'immersive' && Boolean(photo);
         const position = (key: string, fallback: number) => Math.min(100, Math.max(0, Number(section.data?.[key] ?? fallback)));
@@ -207,23 +212,23 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
                 {section.subtitle && <p className="profile-kicker" data-format-color={fieldStyle(section, 'subtitle').color ? 'true' : undefined} style={fieldStyle(section, 'subtitle')}>{section.subtitle}</p>}
                 <span
                   className="text-xs font-bold uppercase tracking-widest block"
-                  style={{ color: palette.primary }}
+                  {...textFormat('role', { color: palette.primary })}
                 >
                   {project.role}
                 </span>
                 <h1
                   className="text-2xl sm:text-4xl font-extrabold tracking-tight"
-                  style={{
+                  {...textFormat('name', {
                     fontFamily: typography.headingFont ? `'${typography.headingFont}', sans-serif` : 'inherit',
                     color: palette.text,
                     letterSpacing: typography.letterSpacing === 'wide' ? '0.05em' : 'normal',
-                  }}
+                  })}
                 >
                   {candidate.fullName}
                 </h1>
                 {candidate.municipality && (
-                  <p className="text-xs font-semibold text-slate-500 flex items-center justify-center md:justify-start gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                  <p className="text-xs font-semibold text-slate-500" {...textFormat('location')}>
+                    <MapPin className="mr-1 inline-block h-[1em] w-[1em] align-text-bottom" aria-hidden="true" />
                     {candidate.district ? `${candidate.district} · ` : ''}
                     {candidate.municipality}, Morelos
                   </p>
@@ -234,11 +239,11 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
               {candidate.slogan && (
                 <div
                   className="p-3.5 rounded-xl border-l-4 text-sm font-semibold italic leading-relaxed"
-                  style={{
+                  {...textFormat('slogan', {
                     borderLeftColor: palette.primary,
-                    backgroundColor: `${palette.primary}0D`, // 5% opacity tint
+                    backgroundColor: `${palette.primary}0D`,
                     color: palette.text,
-                  }}
+                  })}
                 >
                   "{candidate.slogan}"
                 </div>
@@ -246,7 +251,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
 
               {/* Tagline */}
               {candidate.tagline && (
-                <p className="text-xs text-slate-600 leading-relaxed">
+                <p className="text-xs text-slate-600 leading-relaxed" {...textFormat('tagline')}>
                   {candidate.tagline}
                 </p>
               )}

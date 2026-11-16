@@ -59,17 +59,14 @@ export const SectionsTab: React.FC<SectionsTabProps> = ({ project, onChange, onP
     );
   };
 
-  const moveSection = (index: number, direction: 'up' | 'down') => {
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= sections.length) return;
+  const moveSection = (index: number, targetIndex: number) => {
+    if (index === targetIndex || targetIndex < 0 || targetIndex >= sections.length) return;
 
     const copy = [...sections];
     const [moved] = copy.splice(index, 1);
     copy.splice(targetIndex, 0, moved);
 
-    // Reassign order
-    const reordered = copy.map((s, i) => ({ ...s, order: i + 1 }));
-    handleSectionsChange(reordered);
+    handleSectionsChange(copy);
   };
 
   const duplicateSection = (sec: SectionConfig) => {
@@ -162,7 +159,7 @@ export const SectionsTab: React.FC<SectionsTabProps> = ({ project, onChange, onP
                   sec.enabled ? 'border-slate-200 bg-white' : 'border-slate-200 bg-slate-50 opacity-60'
                 }`}
               >
-                <div className="p-3 flex items-center justify-between gap-3">
+                <div className="p-3 flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="w-5 h-5 rounded-md bg-slate-100 text-slate-600 font-bold flex items-center justify-center text-[11px] shrink-0">
                       {index + 1}
@@ -189,12 +186,20 @@ export const SectionsTab: React.FC<SectionsTabProps> = ({ project, onChange, onP
                     </div>
                   </div>
 
+                  <label className="flex items-center gap-2 font-medium text-slate-700">
+                    Posición
+                    <select aria-label={`Posición de ${sec.title}`} value={index} onChange={event => moveSection(index, Number(event.target.value))}
+                      className="rounded-md border border-slate-200 bg-white px-2 py-1">
+                      {sections.map((item, position) => <option key={item.id} value={position}>{position + 1}</option>)}
+                    </select>
+                  </label>
+
                   {/* Order & Actions */}
                   <div className="flex items-center gap-1 shrink-0">
                     <button
                       type="button"
                       disabled={index === 0}
-                      onClick={() => moveSection(index, 'up')}
+                      onClick={() => moveSection(index, index - 1)}
                       className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30"
                       title="Subir"
                     >
@@ -203,7 +208,7 @@ export const SectionsTab: React.FC<SectionsTabProps> = ({ project, onChange, onP
                     <button
                       type="button"
                       disabled={index === sections.length - 1}
-                      onClick={() => moveSection(index, 'down')}
+                      onClick={() => moveSection(index, index + 1)}
                       className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30"
                       title="Bajar"
                     >

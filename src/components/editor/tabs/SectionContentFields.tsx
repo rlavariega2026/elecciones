@@ -67,6 +67,13 @@ export function SectionContentFields({ section, bio, onChange, onPhotoRead, onAd
   </div>;
   if (type === 'hero') return <div className="space-y-3">{heading}
     <HeroPhotoControls section={section} onChange={onChange} />
+    <fieldset className="grid gap-3 rounded-lg border border-slate-200 p-3 sm:grid-cols-2">
+      <legend className="font-semibold">Textos de portada</legend>
+      {([
+        ['role', 'Cargo'], ['name', 'Nombre'], ['location', 'Ubicación'],
+        ['slogan', 'Lema'], ['tagline', 'Texto complementario'],
+      ] as const).map(([key, label]) => <div key={key}>{label}{fieldFormat(key)}</div>)}
+    </fieldset>
   </div>;
   if (type === 'bio') return <div className="space-y-3">{heading}
     <label className="block font-semibold">Texto de la semblanza
