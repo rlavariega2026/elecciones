@@ -74,7 +74,7 @@ export function AdditionalSection({ section, surface, buttons, onButton }: {
                 {item.title && <h3 className="font-bold" style={fieldStyle(section, 'title', item)}>{item.title}</h3>}
                 {item.description && <p className="mt-1 whitespace-pre-line leading-relaxed" style={fieldStyle(section, 'description', item)}>{item.description}</p>}
                 {link && section.type !== 'videos' && <a href={link} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block font-semibold underline">
-                  {section.type === 'documents' ? 'Abrir documento' : section.type === 'videos' ? 'Ver video' : 'Abrir enlace'}
+                  {section.type === 'documents' ? 'Abrir documento' : 'Abrir enlace'}
                 </a>}
               </li>
             );
