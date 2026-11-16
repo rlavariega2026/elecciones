@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Project } from '../../../types';
+import { Project, SectionConfig } from '../../../types';
 import { DESIGN_FAMILIES } from '../../../data/templates';
 import { LayoutTemplate, BookmarkPlus, Check, Sparkles } from 'lucide-react';
+import { profileSections } from '../../../utils/profilePresentation';
+import { HeroPhotoControls, SectionBackgroundControls } from './SectionDesignControls';
 import { api } from '../../../services/api';
 
 interface TemplatesTabProps {
@@ -24,6 +26,16 @@ export const TemplatesTab: React.FC<TemplatesTabProps> = ({ project, onChange })
     return () => { active = false; };
   }, []);
   const [savingTemplate, setSavingTemplate] = useState(false);
+  const [recuadroId, setRecuadroId] = useState('');
+  const sections = profileSections(project);
+  const selectedSection = sections.find(section => section.id === recuadroId) || sections[0];
+  const hero = sections.find(section => section.type === 'hero' && section.enabled) || sections.find(section => section.type === 'hero');
+  const changeSection = (id: string, data: SectionConfig['data']) => {
+    const stored = project.sections || [];
+    const editable = stored.some(section => section.id === id) ? stored
+      : sections.map((section, index) => ({ ...section, order: index + 1 }));
+    onChange({ sections: editable.map(section => section.id === id ? { ...section, data } : section) });
+  };
 
   const selectedFamily =
     DESIGN_FAMILIES.find((f) => f.id === project.designFamily) || DESIGN_FAMILIES[0];
@@ -110,6 +122,34 @@ export const TemplatesTab: React.FC<TemplatesTabProps> = ({ project, onChange })
               </>
             )}
           </button>
+        </div>
+
+        <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <h5 className="text-sm font-bold text-slate-900">Personaliza la portada y los recuadros</h5>
+          {hero ? (
+            <div className="space-y-2">
+              <HeroPhotoControls section={hero} onChange={data => changeSection(hero.id, data)} />
+              {!hero.enabled && <p className="text-slate-600">Activa Portada en Secciones para verla publicada.</p>}
+              {!project.candidate.heroPhotoUrl && !project.candidate.coverPhotoUrl && (
+                <p className="text-slate-600">Sube una foto principal en Candidato para ver el encuadre.</p>
+              )}
+            </div>
+          ) : <p className="text-slate-600">Agrega Portada en Secciones para configurar la foto principal.</p>}
+          {selectedSection && (
+            <div className="space-y-2">
+              <label className="block font-semibold">Recuadro que quieres personalizar
+                <select className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-2"
+                  value={selectedSection.id} onChange={event => setRecuadroId(event.target.value)}>
+                  {sections.map((section, index) => (
+                    <option key={section.id} value={section.id}>
+                      {index + 1}. {section.title || (section.type === 'hero' ? 'Portada' : section.type)}{section.enabled ? '' : ' (oculto)'}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <SectionBackgroundControls section={selectedSection} onChange={data => changeSection(selectedSection.id, data)} />
+            </div>
+          )}
         </div>
 
         {/* 10 Design Families Selector */}

@@ -1,6 +1,7 @@
+import { HeroPhotoControls, SectionBackgroundControls } from './SectionDesignControls';
 import { useRef, useState } from 'react';
 import { PROFESSIONAL_FONTS } from '../../../data/fonts';
-import { legacyNetwork, socialNetworks, sectionSurface } from '../../../utils/profilePresentation';
+import { legacyNetwork, socialNetworks } from '../../../utils/profilePresentation';
 import { SectionConfig } from '../../../types';
 
 const fieldLabels: Record<string, string> = {
@@ -59,37 +60,13 @@ export function SectionContentFields({ section, bio, onChange, onPhotoRead, onAd
   const [reading, setReading] = useState(false);
   const fieldFormat = (field: string) => <TextControls value={data.textStyles?.[field]}
     onChange={style => onChange({ ...data, textStyles: { ...data.textStyles, [field]: style } })} />;
-  const appearance = data.appearance || {};
-  const setAppearance = (changes: Record<string, string>) => onChange({ ...data, appearance: { ...appearance, ...changes } });
   const heading = <div className="grid gap-2 sm:grid-cols-2">
     <div>Título visible{fieldFormat('heading')}</div>
     <div>Subtítulo o kicker{fieldFormat('subtitle')}</div>
-    <fieldset className="col-span-full space-y-2 rounded-lg border border-slate-200 p-3">
-      <legend className="font-semibold">Fondo de este recuadro</legend>
-      <label>Acabado <select value={appearance.finish || 'default'} onChange={event => setAppearance({ finish: event.target.value })}>
-        <option value="default">De la plantilla</option><option value="solid">Sólido</option>
-        <option value="gradient">Degradado</option><option value="metallic">Metálico</option>
-      </select></label>
-      {appearance.finish && appearance.finish !== 'default' && <div className="flex flex-wrap items-center gap-3">
-        <label>Color principal <input type="color" value={appearance.primary || '#f8fafc'} onChange={event => setAppearance({ primary: event.target.value })} /></label>
-        {appearance.finish !== 'solid' && <label>Color secundario <input type="color" value={appearance.secondary || '#94a3b8'} onChange={event => setAppearance({ secondary: event.target.value })} /></label>}
-        <span className="inline-block h-8 w-20 rounded-md border border-slate-300" style={sectionSurface(section, '#ffffff')} aria-label="Muestra de fondo" />
-      </div>}
-    </fieldset>
+    <SectionBackgroundControls section={section} onChange={onChange} />
   </div>;
   if (type === 'hero') return <div className="space-y-3">{heading}
-    <label className="block">Presentación de foto principal
-      <select className="block w-full rounded-lg border bg-white p-2" value={data.photoLayout || 'portrait'} onChange={event => onChange({ ...data, photoLayout: event.target.value })}>
-        <option value="portrait">Presentación de la plantilla</option><option value="immersive">Foto inmersiva</option>
-      </select>
-    </label>
-    {data.photoLayout === 'immersive' && ([
-      ['photoMobileX', 'Horizontal en celular', 50], ['photoMobileY', 'Vertical en celular', 35],
-      ['photoDesktopX', 'Horizontal en escritorio', 50], ['photoDesktopY', 'Vertical en escritorio', 35],
-    ] as const).map(([key, label, fallback]) => <label key={key} className="block">{label} · {data[key] ?? fallback}%
-      <input className="block w-full" type="range" min="0" max="100" value={data[key] ?? fallback}
-        onChange={event => onChange({ ...data, [key]: Number(event.target.value) })} />
-    </label>)}
+    <HeroPhotoControls section={section} onChange={onChange} />
   </div>;
   if (type === 'bio') return <div className="space-y-3">{heading}
     <label className="block font-semibold">Texto de la semblanza
