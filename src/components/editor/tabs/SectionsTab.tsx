@@ -1,3 +1,4 @@
+import { profileSections } from '../../../utils/profilePresentation';
 import { SectionContentFields } from './SectionContentFields';
 import React, { useState } from 'react';
 import { Project, SectionConfig, SectionType } from '../../../types';
@@ -35,6 +36,7 @@ const AVAILABLE_SECTION_TYPES: Array<{ type: SectionType; title: string; default
   { type: 'videos', title: 'Videos y Mensajes', defaultSubtitle: 'Spots de campaña y entrevistas oficiales' },
   { type: 'press', title: 'Sala de Prensa', defaultSubtitle: 'Comunicados y posicionamientos en medios' },
   { type: 'social', title: 'Redes Sociales Oficiales', defaultSubtitle: 'Sigue nuestras transmisiones y actividades' },
+  { type: 'citizen_form', title: 'Solicitud Ciudadana', defaultSubtitle: '' },
   { type: 'contact', title: 'Contacto & Casa de Gestión', defaultSubtitle: 'Atención directa y personalizada' },
   { type: 'faq', title: 'Preguntas Frecuentes', defaultSubtitle: 'Respuestas directas y transparentes' },
   { type: 'documents', title: 'Documentos PDF Descargables', defaultSubtitle: 'Plan de gobierno, CV y manifiestos oficiales' },
@@ -42,14 +44,11 @@ const AVAILABLE_SECTION_TYPES: Array<{ type: SectionType; title: string; default
 ];
 
 export const SectionsTab: React.FC<SectionsTabProps> = ({ project, onChange }) => {
-  const sections = [...(project.sections || [])].sort((a, b) => a.order - b.order);
-  if (!project.meta?.sectionsManaged && project.municipalSlate?.members?.length && !sections.some(section => section.type === 'slate')) {
-    sections.splice(2, 0, { id: 'legacy-slate', type: 'slate', title: project.municipalSlate.slateName || 'Planilla Municipal', order: 3, enabled: true, data: {} });
-  }
+  const sections = profileSections(project);
   const [expandedSecId, setExpandedSecId] = useState<string | null>(null);
 
   const handleSectionsChange = (updated: SectionConfig[]) => {
-    onChange({ sections: updated.map((section, index) => ({ ...section, order: index + 1 })), meta: { ...project.meta, sectionsManaged: true } });
+    onChange({ sections: updated.map((section, index) => ({ ...section, order: index + 1 })), meta: { ...project.meta, sectionsManaged: true, citizenFormManaged: true } });
   };
 
   const toggleSection = (id: string) => {

@@ -99,6 +99,7 @@ export type SectionType =
   | 'press'
   | 'social'
   | 'contact'
+  | 'citizen_form'
   | 'faq'
   | 'documents'
   | 'slate'
@@ -227,6 +228,7 @@ export interface InteractiveButton {
 
 export interface ProjectMetadata {
   sectionsManaged?: boolean;
+  citizenFormManaged?: boolean;
   createdAt: string;
   updatedAt: string;
   publishedAt?: string;
@@ -252,6 +254,7 @@ export interface Project {
   variantId: string;
   palette: ColorPalette;
   backgroundImageUrl?: string;
+  backgroundAppearance?: { fit?: 'cover' | 'contain'; x?: number; y?: number; zoom?: number; blur?: number; opacity?: number };
   citizenWhatsApp?: string;
   typography: TypographySettings;
   logos: LogosConfig;

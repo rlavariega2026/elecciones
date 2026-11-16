@@ -1,7 +1,8 @@
+import { fieldStyle, profileSections } from '../../utils/profilePresentation';
 import React, { useState, useEffect } from 'react';
 import { Project, SectionConfig, SlateMember } from '../../types';
 import { DESIGN_FAMILIES } from '../../data/templates';
-import { AdditionalSection, SectionHeading } from './PublicSections';
+import { ContactLocation, ProfileGallery, AdditionalSection, SectionHeading } from './PublicSections';
 import { api } from '../../services/api';
 import { downloadVCard } from '../../utils/vcard';
 import {
@@ -33,7 +34,6 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
   isStandalone = false,
 }) => {
   const [selectedMember, setSelectedMember] = useState<SlateMember | null>(null);
-  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [formSubmittedFolio, setFormSubmittedFolio] = useState<string | null>(null);
   const [submittedMessage, setSubmittedMessage] = useState('');
   const [formError, setFormError] = useState('');
@@ -68,13 +68,10 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
   const { candidate, palette, typography, logos, municipalSlate } = project;
   const family = DESIGN_FAMILIES.find(item => item.id === project.designFamily) || DESIGN_FAMILIES[0];
   const variantIndex = Math.max(0, family.variants.findIndex(item => item.id === project.variantId));
-  const sections = [...(project.sections || [])].sort((left, right) => left.order - right.order);
-  // Older municipal projects sometimes stored the roster separately.
-  if (!project.meta?.sectionsManaged && municipalSlate?.members?.length && !sections.some(section => section.type === 'slate')) {
-    sections.splice(2, 0, { id: 'legacy-slate', type: 'slate', title: municipalSlate.slateName || 'Planilla Municipal', order: 3, enabled: true, data: {} });
-  }
+  const sections = profileSections(project);
   const visibleSections = sections.filter(section => section.enabled);
-  const contactVisible = visibleSections.some(section => section.type === 'contact');
+  const contactVisible = visibleSections.some(section => section.type === 'citizen_form');
+  const backdrop = project.backgroundAppearance;
   const publicButtons = project.buttons.filter(button => button.enabled && (contactVisible || button.actionType !== 'citizen_form'));
   const rawWhatsApp = project.citizenWhatsApp?.trim() || project.buttons.find(button => button.actionType === 'whatsapp' && button.enabled)?.actionValue
     || visibleSections.find(section => section.type === 'contact')?.data?.whatsapp || '';
@@ -134,7 +131,8 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
         `Nombre: ${citizenName}`,
         `Colonia: ${citizenColonia}`,
         `Tipo: ${inquiryType}`,
-        `Solicitud: ${message}`,
+        'Texto completo de la solicitud:',
+        message,
       ].join('\n'));
       setMessage('');
     } catch {
@@ -196,19 +194,19 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
               </div>
 
               {/* Stage Badge */}
-              <div
+              {!section.data?.hideStage && <div
                 className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[11px] font-bold text-white shadow-md uppercase tracking-wider whitespace-nowrap"
-                style={{ backgroundColor: palette.primary }}
+                style={{ backgroundColor: palette.primary, ...fieldStyle(section, 'stage') }}
               >
-                {project.stage.replace('_', ' ')}
-              </div>
+                {section.data?.stageLabel || project.stage.replace(/_/g, ' ')}
+              </div>}
             </div>
 
             {/* Candidate Info & Slogan */}
             <div className="profile-intro min-w-0 space-y-3">
               <div className="space-y-1">
-                {section.subtitle && <p className="profile-kicker">{section.subtitle}</p>}
-                <p className="profile-kicker">{section.title}</p>
+                {section.subtitle && <p className="profile-kicker" data-format-color={fieldStyle(section, 'subtitle').color ? 'true' : undefined} style={fieldStyle(section, 'subtitle')}>{section.subtitle}</p>}
+                {section.title && <p className="profile-kicker" data-format-color={fieldStyle(section, 'heading').color ? 'true' : undefined} style={fieldStyle(section, 'heading')}>{section.title}</p>}
                 <span
                   className="text-xs font-bold uppercase tracking-widest block"
                   style={{ color: palette.primary }}
@@ -263,11 +261,11 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
                     <button
                       key={btn.id}
                       onClick={() => handleButtonClick(btn)}
-                      className="px-4 py-2 rounded-xl text-xs font-bold shadow-sm flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer"
+                      className="profile-action" data-style={btn.style}
                       style={{
-                        backgroundColor: btn.bgColor || palette.primary,
-                        color: btn.color || '#FFFFFF',
-                      }}
+                        '--action-color': btn.bgColor || palette.primary,
+                        '--action-text': btn.color || '#fff',
+                      } as React.CSSProperties}
                     >
                       {btn.actionType === 'whatsapp' ? (
                         <MessageCircle className="w-4 h-4" />
@@ -382,16 +380,17 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
                     style={{
                       backgroundColor: `${palette.primary}1A`,
                       color: palette.primary,
+                      ...fieldStyle(section, 'pillar', prop),
                     }}
                   >
                     {prop.pillar || 'Eje Prioritario'}
                   </span>
-                  <h3 className="font-bold text-sm text-slate-900">{prop.title}</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed">
+                  <h3 className="font-bold text-sm text-slate-900" style={fieldStyle(section, 'title', prop)}>{prop.title}</h3>
+                  <p className="text-xs text-slate-600 leading-relaxed" style={fieldStyle(section, 'description', prop)}>
                     {prop.description}
                   </p>
                   {prop.impact && (
-                    <p className="text-[11px] font-semibold text-emerald-700 flex items-center gap-1 pt-1">
+                    <p className="text-[11px] font-semibold text-emerald-700 pt-1" style={fieldStyle(section, 'impact', prop)}>
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                       Impacto: {prop.impact}
                     </p>
@@ -402,42 +401,19 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
           </section>
         );
       case 'gallery':
-        return (
-          <section data-module={section.type}
-            className="rounded-2xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-6"
-            style={{ backgroundColor: palette.surface || '#FFFFFF' }}
-          >
-            <SectionHeading section={section} />
-
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {(
-                section.data?.images || []
-              ).map((img: any) => (
-                <div
-                  key={img.id}
-                  onClick={() => setLightboxImage(img.url)}
-                  className="aspect-square rounded-xl overflow-hidden border border-slate-200 cursor-pointer group relative shadow-sm"
-                >
-                  <img
-                    src={img.url}
-                    alt={img.caption || 'Foto de campaña'}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  {img.caption && (
-                    <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/80 to-transparent text-[10px] text-white font-medium line-clamp-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      {img.caption}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        );
+        return <section data-module="gallery" className="p-6 space-y-4" style={{ backgroundColor: palette.surface || '#fff' }}>
+          <SectionHeading section={section} />
+          <ProfileGallery section={section} />
+        </section>;
       case 'contact':
+        return <section data-module="contact" className="p-6 space-y-4" style={{ backgroundColor: palette.surface || '#fff' }}>
+          <SectionHeading section={section} />
+          <ContactLocation section={section} />
+        </section>;
+      case 'citizen_form':
         return (
           <section data-module={section.type}
-          id={section.id === visibleSections.find(item => item.type === 'contact')?.id ? 'citizen-form' : undefined}
+          id={section.id === visibleSections.find(item => item.type === 'citizen_form')?.id ? 'citizen-form' : undefined}
           className="rounded-2xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-6"
           style={{ backgroundColor: palette.surface || '#FFFFFF' }}
         >
@@ -465,7 +441,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
               )}
               <button
                 type="button"
-                onClick={() => setFormSubmittedFolio(null)}
+                onClick={() => { setFormSubmittedFolio(null); setSubmittedMessage(''); }}
                 className="mt-2 text-xs font-semibold text-emerald-800 underline cursor-pointer"
               >
                 Enviar otra solicitud
@@ -606,8 +582,8 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
                 section.data?.items || []
               ).map((faq: any, idx: number) => (
                 <div key={faq.id || idx} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
-                  <h3 className="font-bold text-xs text-slate-900">{faq.question}</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed">{faq.answer}</p>
+                  <h3 className="font-bold text-xs text-slate-900" style={fieldStyle(section, 'question', faq)}>{faq.question}</h3>
+                  <p className="text-xs text-slate-600 leading-relaxed" style={fieldStyle(section, 'answer', faq)}>{faq.answer}</p>
                 </div>
               ))}
             </div>
@@ -627,9 +603,6 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
       className="election-profile min-h-[100dvh] w-full transition-colors pb-16 selection:bg-rose-600 selection:text-white"
       style={{
         backgroundColor: palette.background || '#F8FAFC',
-        backgroundImage: project.backgroundImageUrl
-          ? `url("${project.backgroundImageUrl.replace(/["\\\n\r\f]/g, character => encodeURIComponent(character))}")`
-          : undefined,
         '--profile-accent': palette.primary,
         '--profile-surface': palette.surface || '#fff',
         '--profile-heading': typography.headingFont ? `'${typography.headingFont}'` : 'system-ui',
@@ -637,6 +610,16 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
         fontFamily: typography.bodyFont ? `'${typography.bodyFont}', sans-serif` : 'inherit',
       } as React.CSSProperties}
     >
+      {project.backgroundImageUrl && <div className="profile-background" aria-hidden="true">
+        <img src={project.backgroundImageUrl} alt="" style={{
+          objectFit: backdrop?.fit || 'cover',
+          objectPosition: `${backdrop?.x ?? 50}% ${backdrop?.y ?? 50}%`,
+          transformOrigin: `${backdrop?.x ?? 50}% ${backdrop?.y ?? 50}%`,
+          transform: `scale(${(backdrop?.zoom ?? 100) / 100})`,
+          filter: backdrop?.blur ? `blur(${backdrop.blur}px)` : undefined,
+          opacity: (backdrop?.opacity ?? 100) / 100,
+        }} />
+      </div>}
       {isStandalone && Boolean((project.meta as any)?.demo) && (
         <div className="fixed inset-0 z-[90] pointer-events-none flex items-center justify-center overflow-hidden" aria-hidden="true">
           <div className="w-[min(75vw,360px)] -rotate-12 text-center opacity-25 select-none">
@@ -734,11 +717,11 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
               <button
                 key={btn.id}
                 onClick={() => handleButtonClick(btn)}
-                className="flex-1 py-2 px-2 rounded-lg text-xs font-bold text-center truncate shadow-sm flex items-center justify-center gap-1 active:scale-95"
+                className="profile-action flex-1 min-w-0" data-style={btn.style}
                 style={{
-                  backgroundColor: btn.bgColor || palette.primary,
-                  color: btn.color || '#FFFFFF',
-                }}
+                  '--action-color': btn.bgColor || palette.primary,
+                        '--action-text': btn.color || '#fff',
+                      } as React.CSSProperties}
               >
                 {btn.actionType === 'whatsapp' ? (
                   <MessageCircle className="w-3.5 h-3.5" />
@@ -752,32 +735,6 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
             ))}
         </div>
       </div>
-
-      {/* FOOTER */}
-      <footer className="mt-12 text-center text-xs text-slate-500 max-w-4xl mx-auto px-4 space-y-1">
-        <p>LAV Política Digital · Propiedad de LAV Digital MKT</p>
-        <p className="italic">"Lo que no se ve, no existe"</p>
-      </footer>
-
-      {/* LIGHTBOX MODAL */}
-      {lightboxImage && (
-        <div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
-          onClick={() => setLightboxImage(null)}
-        >
-          <button
-            onClick={() => setLightboxImage(null)}
-            className="absolute top-4 right-4 p-2 text-white/80 hover:text-white"
-          >
-            <X className="w-6 h-6" />
-          </button>
-          <img
-            src={lightboxImage}
-            alt="Ampliación"
-            className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg shadow-2xl"
-          />
-        </div>
-      )}
 
       {/* SLATE MEMBER DETAIL MODAL */}
       {selectedMember && (

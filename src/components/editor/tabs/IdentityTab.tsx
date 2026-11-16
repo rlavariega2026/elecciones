@@ -55,6 +55,23 @@ export const IdentityTab: React.FC<IdentityTabProps> = ({ project, onChange }) =
               reader.readAsDataURL(file);
             }} />
         </label>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="grid gap-1">Ajuste
+            <select value={project.backgroundAppearance?.fit || 'cover'} onChange={event => onChange({ backgroundAppearance: { ...project.backgroundAppearance, fit: event.target.value === 'contain' ? 'contain' : 'cover' } })}>
+              <option value="cover">Cubrir</option><option value="contain">Mostrar completa</option>
+            </select>
+          </label>
+          {([
+            ['opacity', 'Opacidad', 0, 100, 100], ['blur', 'Desenfoque', 0, 24, 0],
+            ['zoom', 'Tamaño (%)', 100, 200, 100], ['x', 'Posición horizontal', 0, 100, 50],
+            ['y', 'Posición vertical', 0, 100, 50],
+          ] as const).map(([key, label, min, max, fallback]) => (
+            <label key={key} className="grid gap-1">{label} · {project.backgroundAppearance?.[key] ?? fallback}
+              <input type="range" min={min} max={max} value={project.backgroundAppearance?.[key] ?? fallback}
+                onChange={event => onChange({ backgroundAppearance: { ...project.backgroundAppearance, [key]: Number(event.target.value) } })} />
+            </label>
+          ))}
+        </div>
         {project.backgroundImageUrl && <>
           <img src={project.backgroundImageUrl} alt="Vista previa del fondo" className="h-28 w-full rounded-lg object-cover" />
           <button type="button" onClick={() => onChange({ backgroundImageUrl: '' })} className="font-semibold text-rose-700">Quitar imagen</button>

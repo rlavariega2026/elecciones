@@ -179,7 +179,17 @@ export const ButtonsTab: React.FC<ButtonsTabProps> = ({ project, onChange }) => 
                     <option value="glass">Glassmorphism</option>
                     <option value="pill">Tipo Píldora</option>
                     <option value="minimal">Minimalista</option>
+                    <option value="floating">Elevado</option>
                   </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2">Color del texto
+                    <input type="color" value={btn.color || '#ffffff'} onChange={e => updateButton(btn.id, { color: e.target.value })} />
+                  </label>
+                  <span className="profile-action" data-style={btn.style} style={{ '--action-color': btn.bgColor || project.palette.primary, '--action-text': btn.color || '#fff' } as React.CSSProperties}>
+                    <MousePointerClick size={16} /> {btn.label}
+                  </span>
                 </div>
 
                 {/* Custom Color */}
