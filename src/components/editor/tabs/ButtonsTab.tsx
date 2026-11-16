@@ -1,3 +1,4 @@
+import { modernButtonModels } from '../../../utils/profilePresentation';
 import React from 'react';
 import { Project, InteractiveButton } from '../../../types';
 import {
@@ -180,6 +181,7 @@ export const ButtonsTab: React.FC<ButtonsTabProps> = ({ project, onChange }) => 
                     <option value="pill">Tipo Píldora</option>
                     <option value="minimal">Minimalista</option>
                     <option value="floating">Elevado</option>
+                    <optgroup label="Modelos modernos">{modernButtonModels.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</optgroup>
                   </select>
                 </div>
 
@@ -191,6 +193,16 @@ export const ButtonsTab: React.FC<ButtonsTabProps> = ({ project, onChange }) => 
                     <MousePointerClick size={16} /> {btn.label}
                   </span>
                 </div>
+
+                <fieldset className="col-span-full grid grid-cols-2 gap-2 rounded-xl border border-slate-200 p-3 sm:grid-cols-3">
+                  <legend className="font-semibold text-slate-800">Modelos modernos</legend>
+                  {modernButtonModels.map(([value, label]) => (
+                    <button key={value} type="button" aria-pressed={btn.style === value} onClick={() => updateButton(btn.id, { style: value })}
+                      className="profile-action" data-style={value} style={{ '--action-color': btn.bgColor || project.palette.primary, '--action-text': btn.color || '#fff' } as React.CSSProperties}>
+                      <MousePointerClick size={16} aria-hidden="true" /><span>{label}</span>
+                    </button>
+                  ))}
+                </fieldset>
 
                 {/* Custom Color */}
                 <div>

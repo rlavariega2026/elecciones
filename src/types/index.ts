@@ -211,7 +211,7 @@ export interface MunicipalSlate {
 export interface InteractiveButton {
   id: string;
   label: string;
-  style: 'solid' | 'gradient' | 'outline' | 'glass' | 'floating' | 'pill' | 'minimal';
+  style: 'solid' | 'gradient' | 'outline' | 'glass' | 'floating' | 'pill' | 'minimal' | 'capsule' | 'tile' | 'glass-edge' | 'split-icon' | 'spotlight' | 'neon-line';
   actionType:
     | 'whatsapp'
     | 'call'
@@ -242,6 +242,7 @@ export interface ProjectMetadata {
 }
 
 export interface Project {
+  typographyPreset?: 'editorial' | 'geometric' | 'compact' | 'custom';
   visualPreset?: 'classic' | 'cristal-editorial';
   id: string;
   internalName: string;

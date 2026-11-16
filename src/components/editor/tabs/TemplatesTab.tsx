@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Project, SectionConfig } from '../../../types';
 import { DESIGN_FAMILIES } from '../../../data/templates';
 import { LayoutTemplate, BookmarkPlus, Check, Sparkles } from 'lucide-react';
-import { profileSections } from '../../../utils/profilePresentation';
+import { profileSections, typographyModels } from '../../../utils/profilePresentation';
 import { HeroPhotoControls, SectionBackgroundControls } from './SectionDesignControls';
 import { api } from '../../../services/api';
 
@@ -134,6 +134,23 @@ export const TemplatesTab: React.FC<TemplatesTabProps> = ({ project, onChange })
               <option value="cristal-editorial">Cristal Editorial</option>
             </select>
           </label>
+          <fieldset className="space-y-2">
+            <legend className="font-semibold">Tipografía de la tarjeta</legend>
+            <div className="grid grid-cols-2 gap-2">
+              <button type="button" className="rounded-lg border border-slate-300 bg-white p-3 text-left aria-pressed:ring-2 aria-pressed:ring-slate-700"
+                aria-pressed={project.typographyPreset === 'custom' || (!project.typographyPreset && project.visualPreset !== 'cristal-editorial')}
+                onClick={() => onChange({ typographyPreset: 'custom' })}>Mis fuentes</button>
+              {Object.entries(typographyModels).map(([key, model]) => (
+                <button key={key} type="button" data-typography={key}
+                  className="rounded-lg border border-slate-300 bg-white p-3 text-left aria-pressed:ring-2 aria-pressed:ring-slate-700"
+                  aria-pressed={(project.typographyPreset ?? (project.visualPreset === 'cristal-editorial' ? 'editorial' : 'custom')) === key}
+                  onClick={() => onChange({ typographyPreset: key as keyof typeof typographyModels })}>
+                  <span className="profile-type-sample block" style={{ fontFamily: model.heading }}>{model.label}</span>
+                  <span className="text-slate-600" style={{ fontFamily: model.body }}>{model.heading} + {model.body}</span>
+                </button>
+              ))}
+            </div>
+          </fieldset>
           {hero ? (
             <div className="space-y-2">
               <HeroPhotoControls section={hero} onChange={data => changeSection(hero.id, data)} />

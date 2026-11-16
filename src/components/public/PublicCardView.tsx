@@ -1,4 +1,4 @@
-import { fieldStyle, profileSections, sectionSurface } from '../../utils/profilePresentation';
+import { fieldStyle, profileSections, sectionSurface, modernButtonModels, typographyModels } from '../../utils/profilePresentation';
 import React, { useState, useEffect } from 'react';
 import { Project, SectionConfig, SlateMember } from '../../types';
 import { DESIGN_FAMILIES } from '../../data/templates';
@@ -73,6 +73,8 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
   const contactVisible = visibleSections.some(section => section.type === 'citizen_form');
   const backdrop = project.backgroundAppearance;
   const editorial = project.visualPreset === 'cristal-editorial';
+  const typographyPreset = project.typographyPreset ?? (editorial ? 'editorial' : 'custom');
+  const typeModel = typographyPreset === 'custom' ? undefined : typographyModels[typographyPreset];
   const firstHero = visibleSections.find(section => section.type === 'hero');
   const logoPlacement = firstHero ? logos.partyLogoPlacement || 'header' : 'header';
   const logoInPortada = logos.partyLogoVisible && logos.partyLogoUrl && logoPlacement !== 'header' ? (
@@ -178,7 +180,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
         const position = (key: string, fallback: number) => Math.min(100, Math.max(0, Number(section.data?.[key] ?? fallback)));
         return (
           <section data-module={section.type} data-framed={section.data?.appearance?.framed === false ? 'false' : undefined} data-photo-layout={immersive ? 'immersive' : undefined}
-          data-custom-surface={section.data?.appearance?.finish && section.data.appearance.finish !== 'default' ? 'true' : undefined}
+          data-custom-surface={(section.data?.appearance?.finish && section.data.appearance.finish !== 'default') || section.data?.appearance?.opacity !== undefined ? 'true' : undefined}
           className="profile-hero rounded-2xl overflow-hidden shadow-sm border border-slate-200/60 p-6 sm:p-8"
           style={sectionSurface(section, palette.surface, editorial)}
         >
@@ -229,9 +231,9 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
                 <h1
                   className="text-2xl sm:text-4xl font-extrabold tracking-tight"
                   {...textFormat('name', {
-                    fontFamily: editorial ? "'Instrument Sans', Inter, sans-serif" : typography.headingFont ? `'${typography.headingFont}', sans-serif` : 'inherit',
+                    fontFamily: typeModel ? `'${typeModel.heading}', sans-serif` : typography.headingFont ? `'${typography.headingFont}', sans-serif` : 'inherit',
                     color: palette.text,
-                    letterSpacing: typography.letterSpacing === 'wide' ? '0.05em' : 'normal',
+                    letterSpacing: typeModel ? undefined : typography.letterSpacing === 'wide' ? '0.05em' : 'normal',
                   })}
                 >
                   {candidate.fullName}
@@ -274,7 +276,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
                     <button
                       key={btn.id}
                       onClick={() => handleButtonClick(btn)}
-                      className="profile-action" data-style={btn.style} data-action={btn.actionType}
+                      className="profile-action" data-style={btn.style} data-action={btn.actionType} data-modern={modernButtonModels.some(([value]) => value === btn.style) ? 'true' : undefined}
                       style={{
                         '--action-color': btn.bgColor || palette.primary,
                         '--action-text': btn.color || '#fff',
@@ -291,7 +293,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
                       ) : (
                         <ExternalLink className="w-4 h-4" />
                       )}
-                      {btn.label}
+                      <span>{btn.label}</span>
                     </button>
                   ))}
               </div>
@@ -611,6 +613,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
   return (
     <div
       onClick={enterFullscreen}
+      data-typography={typeModel ? typographyPreset : undefined}
       data-visual-preset={editorial ? 'cristal-editorial' : undefined}
       data-family={family.id}
       data-layout={variantIndex}
@@ -622,7 +625,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
         '--profile-surface': palette.surface || '#fff',
         '--profile-heading': typography.headingFont ? `'${typography.headingFont}'` : 'system-ui',
         color: palette.text || '#0F172A',
-        fontFamily: editorial ? 'Inter, sans-serif' : typography.bodyFont ? `'${typography.bodyFont}', sans-serif` : 'inherit',
+        fontFamily: typeModel ? `'${typeModel.body}', sans-serif` : typography.bodyFont ? `'${typography.bodyFont}', sans-serif` : 'inherit',
       } as React.CSSProperties}
     >
       {project.backgroundImageUrl && <div className="profile-background" aria-hidden="true">

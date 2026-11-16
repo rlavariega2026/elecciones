@@ -17,12 +17,23 @@ export function SectionBackgroundControls({ section, onChange }: SectionDesignPr
       <label>Acabado <select disabled={appearance.framed === false} value={appearance.finish || 'default'} onChange={event => setAppearance({ finish: event.target.value })}>
         <option value="default">De la plantilla</option><option value="solid">Sólido</option>
         <option value="gradient">Degradado</option><option value="metallic">Metálico</option><option value="brushed">Metal cepillado</option><option value="glass">Cristal</option><option value="graphite">Grafito</option>
+        <optgroup label="Materiales modernos"><option value="frosted">Cristal esmerilado</option><option value="smoked">Cristal ahumado</option><option value="prism">Prisma iridiscente</option><option value="mesh">Malla tecnológica</option></optgroup>
       </select></label>
+      {appearance.framed !== false && <div className="grid gap-2 sm:grid-cols-2">
+        <label className="block">Transparencia · {100 - (appearance.opacity ?? 100)}%
+          <input className="block w-full" type="range" min="0" max="100" value={100 - (appearance.opacity ?? 100)}
+            onChange={event => setAppearance({ opacity: 100 - Number(event.target.value) })} />
+        </label>
+        {['glass','frosted','smoked','prism','mesh'].includes(appearance.finish) && <label className="block">Desenfoque
+          <input className="block w-full" type="range" min="0" max="32" value={appearance.blur ?? 14}
+            onChange={event => setAppearance({ blur: Number(event.target.value) })} />
+        </label>}
+      </div>}
       {appearance.framed !== false && appearance.finish && appearance.finish !== 'default' && <div className="flex flex-wrap items-center gap-3">
         <label>Color principal <input type="color" value={appearance.primary || '#f8fafc'} onChange={event => setAppearance({ primary: event.target.value })} /></label>
         {appearance.finish !== 'solid' && <label>Color secundario <input type="color" value={appearance.secondary || '#94a3b8'} onChange={event => setAppearance({ secondary: event.target.value })} /></label>}
         {["glass", "brushed", "graphite"].includes(appearance.finish) && <label>Intensidad <input type="range" min="0" max="100" value={appearance.intensity ?? 55} onChange={event => setAppearance({ intensity: Number(event.target.value) })} /></label>}
-        <span className="inline-block h-8 w-20 rounded-md border border-slate-300" style={sectionSurface(section, '#ffffff')} aria-label="Muestra de fondo" />
+        <div className="profile-material-preview w-full"><span className="block rounded-lg border px-4 py-3 font-semibold text-slate-900" style={sectionSurface(section, '#ffffff')}>Vista previa del recuadro</span></div>
       </div>}
     </fieldset>
   );
