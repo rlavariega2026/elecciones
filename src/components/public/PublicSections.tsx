@@ -30,6 +30,7 @@ export function AdditionalSection({ section, surface, buttons, onButton, editori
   onButton: (button: InteractiveButton) => void;
 }) {
   const items = Array.isArray(section.data?.items) ? section.data.items : [];
+  const [expandedPhoto, setExpandedPhoto] = useState(false);
   return (
     <section data-module={section.type} className={section.type === "custom_html" && section.data?.immersivePhoto ? "overflow-hidden space-y-4" : "rounded-2xl border border-slate-200/60 p-6 sm:p-8 space-y-4"}
       style={sectionSurface(section, surface, editorial)}>
@@ -40,6 +41,9 @@ export function AdditionalSection({ section, surface, buttons, onButton, editori
           <img src={section.data.immersivePhoto} alt={section.data.immersiveTitle || section.title || 'Fotografía'}
             className={section.data.immersiveFit==='natural'?'relative block w-full h-auto':'absolute inset-0 h-full w-full'}
             style={{objectFit:section.data.immersiveFit==='cover'?'cover':'contain',objectPosition:`${Math.min(100,Math.max(0,Number(section.data.immersiveX??50)))}% ${Math.min(100,Math.max(0,Number(section.data.immersiveY??50)))}%`}} />
+          <button type="button" aria-label="Ampliar fotografía" title="Toca para ampliar la fotografía"
+            className="absolute inset-0 z-10 cursor-zoom-in focus-visible:outline focus-visible:outline-4 focus-visible:outline-white"
+            onClick={() => setExpandedPhoto(true)} />
           {section.data.immersiveFit!=='natural' && <div className="absolute inset-0 pointer-events-none" style={{background:`linear-gradient(to top,rgba(0,0,0,${Math.min(.85,Math.max(0,Number(section.data.immersiveShade??45)/100))}),transparent 70%)`}}/>}
           {(section.data.immersiveTitle || section.data.immersiveCaption || section.title) && <div className={section.data.immersiveFit==='natural'?'relative w-full p-5 sm:p-8 bg-slate-950':'relative z-10 w-full p-6 sm:p-12 space-y-4 break-words'}>
             <h2 className="text-3xl sm:text-5xl font-bold leading-tight" style={{color:'#fff',...fieldStyle(section,'immersiveTitle')}}>{section.data.immersiveTitle || section.title}</h2>
@@ -47,6 +51,16 @@ export function AdditionalSection({ section, surface, buttons, onButton, editori
           </div>}
         </div>
       ) : <SectionHeading section={section} />}
+      {expandedPhoto && section.data?.immersivePhoto && (
+        <div role="dialog" aria-modal="true" aria-label="Fotografía ampliada" className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 p-2 sm:p-5"
+          onClick={() => setExpandedPhoto(false)}>
+          <button type="button" autoFocus aria-label="Cerrar fotografía ampliada" onClick={() => setExpandedPhoto(false)}
+            className="absolute top-4 right-4 z-20 rounded-full bg-white/20 p-3 text-white hover:bg-white/35"><X size={25}/></button>
+          <img src={section.data.immersivePhoto} alt={section.data.immersiveTitle || section.title || 'Fotografía ampliada'}
+            className="max-h-full max-w-full object-contain" style={{width:'auto',height:'auto'}} onClick={event => event.stopPropagation()}/>
+        </div>
+      )}
+
       {(section.data?.text || section.data?.html) && (
         <p className="whitespace-pre-line leading-relaxed" style={fieldStyle(section, 'text')}>{section.data.text || section.data.html}</p>
       )}
