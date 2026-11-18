@@ -9,6 +9,7 @@
 }
 
 /* Custom font-family utilities mapping to our 22 loaded Google Fonts */
+.font-futura { font-family: 'Futura', 'Futura PT', 'Century Gothic', 'Montserrat', sans-serif; }
 .font-montserrat { font-family: 'Montserrat', sans-serif; }
 .font-inter { font-family: 'Inter', sans-serif; }
 .font-poppins { font-family: 'Poppins', sans-serif; }
