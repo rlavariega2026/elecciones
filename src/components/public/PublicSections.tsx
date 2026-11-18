@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, MapPin, Play, X } from 'lucide-react';
-import { fieldStyle, legacyNetwork, socialNetworks, sectionSurface } from '../../utils/profilePresentation';
+import { actionButtonAppearance, fieldStyle, legacyNetwork, socialNetworks, sectionSurface } from '../../utils/profilePresentation';
 import { InteractiveButton, SectionConfig } from '../../types';
 
 export function SectionHeading({ section }: { section: SectionConfig }) {
@@ -53,7 +53,7 @@ export function AdditionalSection({ section, surface, buttons, onButton, editori
       {section.type === 'custom_buttons' && (
         <div className="flex flex-wrap gap-2">
           {buttons.map(button => <button key={button.id} type="button" onClick={() => onButton(button)}
-            className="profile-action" data-style={button.style} style={{ '--action-text': button.color, '--action-color': button.bgColor } as import('react').CSSProperties}>{button.label}</button>)}
+            className="profile-action" data-style={button.style} style={{ '--action-text': button.color, '--action-color': button.bgColor, ...actionButtonAppearance(button) } as import('react').CSSProperties}>{button.label}</button>)}
         </div>
       )}
       {section.type === 'social' && (
