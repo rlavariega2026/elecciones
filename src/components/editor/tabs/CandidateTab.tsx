@@ -37,6 +37,7 @@ export const CandidateTab: React.FC<CandidateTabProps> = ({ project, onChange })
         <label>Fuente<select className="block w-full border rounded p-1" value={style.font || ''} onChange={e=>updateTextStyle(type,field,'font',e.target.value||undefined)}>
           <option value="">Predeterminada</option>{PROFESSIONAL_FONTS.map(font=><option key={font.id} value={font.name}>{font.name}</option>)}
         </select></label>
+        <label>Grosor<select className="block w-full border rounded p-1" value={style.weight || ''} onChange={e=>updateTextStyle(type,field,'weight',e.target.value||undefined)}><option value="">Heredado</option><option value="300">Light</option><option value="400">Book</option><option value="500">Medium</option><option value="600">Demi</option><option value="700">Bold</option><option value="800">Heavy</option><option value="900">Extra Bold</option></select></label>
         <label>Tamaño (px)<input type="number" min="8" max="160" className="block w-full border rounded p-1" value={style.size??''} onChange={e=>updateTextStyle(type,field,'size',e.target.value?Math.max(8,Math.min(160,Number(e.target.value))):undefined)}/></label>
         <label>Color<input type="color" className="block w-full" value={style.color||'#0f172a'} onChange={e=>updateTextStyle(type,field,'color',e.target.value)}/></label>
         <label>Alineación<select className="block w-full border rounded p-1" value={style.align||''} onChange={e=>updateTextStyle(type,field,'align',e.target.value||undefined)}>
