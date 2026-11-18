@@ -74,9 +74,13 @@ export const SectionsTab: React.FC<SectionsTabProps> = ({ project, onChange, onP
       ...JSON.parse(JSON.stringify(sec)),
       id: `sec-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       title: `${sec.title} (Copia)`,
-      order: sections.length + 1,
+      order: sec.order + 1,
     };
-    handleSectionsChange([...sections, copy]);
+    const sourceIndex = sections.findIndex(section => section.id === sec.id);
+    const updated = [...sections];
+    updated.splice(sourceIndex + 1, 0, copy);
+    handleSectionsChange(updated);
+    setExpandedSecId(copy.id);
   };
 
   const removeSection = (id: string) => {
@@ -193,6 +197,14 @@ export const SectionsTab: React.FC<SectionsTabProps> = ({ project, onChange, onP
                       {sections.map((item, position) => <option key={item.id} value={position}>{position + 1}</option>)}
                     </select>
                   </label>
+
+                  {sec.type === 'custom_html' && (
+                    <button type="button" onClick={() => duplicateSection(sec)}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-violet-300 bg-violet-50 px-3 py-2 font-semibold text-violet-800 hover:bg-violet-100"
+                      title="Duplicar este módulo personalizado con sus fotografías y configuraciones">
+                      <Copy className="h-4 w-4" /> Duplicar módulo
+                    </button>
+                  )}
 
                   {/* Order & Actions */}
                   <div className="flex items-center gap-1 shrink-0">
