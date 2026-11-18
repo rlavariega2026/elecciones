@@ -99,7 +99,36 @@ export function SectionContentFields({ section, bio, onChange, onPhotoRead, onAd
     return <>{heading}<label className="block space-y-1 font-semibold">Contenido
       <textarea rows={5} value={data.text ?? data.html ?? ''} onChange={e => onChange({ ...data, text: e.target.value })}
         className="block w-full rounded-lg border border-slate-200 bg-white p-2 font-normal" />
-    </label>{fieldFormat('text')}</>;
+    </label>{fieldFormat('text')}
+      <div className="rounded-xl border border-violet-200 bg-violet-50/40 p-4 space-y-3">
+        <h4 className="font-bold text-sm">Fotografía inmersiva</h4>
+        <p className="text-xs text-slate-600">Imagen de alta resolución con título y texto superpuestos. Se conserva el archivo original.</p>
+        <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" className="block w-full text-xs" disabled={reading}
+          onChange={async e => { const file=e.target.files?.[0]; if(!file)return; setReading(true);setPhotoError('');
+            try { const url=await readPhoto(file);onChange({...data,immersivePhoto:url}); }
+            catch(error:any){setPhotoError(error.message||'No se pudo cargar la fotografía');}
+            finally{setReading(false);e.target.value='';} }} />
+        {photoError && <p role="alert" className="text-red-700">{photoError}</p>}
+        {data.immersivePhoto && <><img src={data.immersivePhoto} alt="Vista de fotografía inmersiva" className="w-full max-h-52 object-contain rounded-lg bg-slate-900"/>
+          <button type="button" className="text-red-700 underline" onClick={()=>onChange({...data,immersivePhoto:undefined})}>Quitar fotografía</button></>}
+        <label className="block">Altura de la imagen<select className="block w-full border rounded-lg p-2" value={data.immersiveHeight||'screen'} onChange={e=>onChange({...data,immersiveHeight:e.target.value})}>
+          <option value="screen">Pantalla completa</option><option value="half">Media pantalla</option><option value="auto">Automática</option>
+        </select></label>
+        <label className="block">Ajuste de imagen<select className="block w-full border rounded-lg p-2" value={data.immersiveFit||'cover'} onChange={e=>onChange({...data,immersiveFit:e.target.value})}>
+          <option value="cover">Cubrir área</option><option value="contain">Mostrar imagen completa</option>
+        </select></label>
+        <label className="block">Posición horizontal ({data.immersiveX??50}%)<input type="range" min="0" max="100" className="w-full" value={data.immersiveX??50} onChange={e=>onChange({...data,immersiveX:Number(e.target.value)})}/></label>
+        <label className="block">Posición vertical ({data.immersiveY??50}%)<input type="range" min="0" max="100" className="w-full" value={data.immersiveY??50} onChange={e=>onChange({...data,immersiveY:Number(e.target.value)})}/></label>
+        <label className="block">Oscurecimiento ({data.immersiveShade??45}%)<input type="range" min="0" max="85" className="w-full" value={data.immersiveShade??45} onChange={e=>onChange({...data,immersiveShade:Number(e.target.value)})}/></label>
+        <label className="block">Posición del texto<select className="block w-full border rounded-lg p-2" value={data.immersiveTextPosition||'bottom'} onChange={e=>onChange({...data,immersiveTextPosition:e.target.value})}>
+          <option value="top">Arriba</option><option value="center">Centro</option><option value="bottom">Abajo</option>
+        </select></label>
+        <label className="block">Título sobre fotografía<input className="block w-full border rounded-lg p-2" value={data.immersiveTitle??''} onChange={e=>onChange({...data,immersiveTitle:e.target.value})}/></label>
+        <div>Formato del título{fieldFormat('immersiveTitle')}</div>
+        <label className="block">Texto sobre fotografía<textarea rows={3} className="block w-full border rounded-lg p-2" value={data.immersiveCaption??''} onChange={e=>onChange({...data,immersiveCaption:e.target.value})}/></label>
+        <div>Formato del texto{fieldFormat('immersiveCaption')}</div>
+      </div>
+    </>;
   }
   const fields = type === 'agenda' ? ['title', 'date', 'time', 'location', 'description', 'url']
     : ['education', 'trajectory', 'experience'].includes(type) ? ['title', 'year', 'institution', 'description']
