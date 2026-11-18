@@ -31,7 +31,7 @@ export function AdditionalSection({ section, surface, buttons, onButton, editori
 }) {
   const items = Array.isArray(section.data?.items) ? section.data.items : [];
   return (
-    <section data-module={section.type} className="rounded-2xl border border-slate-200/60 p-6 sm:p-8 space-y-4"
+    <section data-module={section.type} className={section.type === "custom_html" && section.data?.immersivePhoto ? "overflow-hidden space-y-4" : "rounded-2xl border border-slate-200/60 p-6 sm:p-8 space-y-4"}
       style={sectionSurface(section, surface, editorial)}>
       {section.type === 'custom_html' && section.data?.immersivePhoto ? (
         <div className="relative isolate overflow-hidden rounded-xl bg-slate-950 text-white"
