@@ -18,6 +18,7 @@ function TextControls({ value = {}, onChange }: { value?: Record<string, any>; o
       <label>Fuente<select className="block w-full" value={value.font || ''} onChange={e => onChange({ ...value, font: e.target.value })}>
         <option value="">Heredada</option>{PROFESSIONAL_FONTS.map(font => <option key={font.id}>{font.name}</option>)}
       </select></label>
+      <label>Grosor<select className="block w-full" value={value.weight || ''} onChange={e => onChange({ ...value, weight: e.target.value || undefined })}><option value="">Heredado</option><option value="300">Light</option><option value="400">Book</option><option value="500">Medium</option><option value="600">Demi</option><option value="700">Bold</option><option value="800">Heavy</option><option value="900">Extra Bold</option></select></label>
       <label>Tamaño (px)<input className="block w-full" type="number" min="8" max="120" value={value.size ?? ''} onChange={e => onChange({ ...value, size: e.target.value ? Math.min(120, Math.max(1, Number(e.target.value))) : undefined })} /></label>
       <label>Color <input type="color" value={value.color || '#0f172a'} onChange={e => onChange({ ...value, color: e.target.value })} /></label>
       <label>Alineación<select className="block w-full" value={value.align || ''} onChange={e => onChange({ ...value, align: e.target.value })}>
