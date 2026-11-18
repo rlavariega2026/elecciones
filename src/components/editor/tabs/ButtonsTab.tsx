@@ -1,5 +1,6 @@
-import { modernButtonModels } from '../../../utils/profilePresentation';
+import { actionButtonAppearance, modernButtonModels } from '../../../utils/profilePresentation';
 import React from 'react';
+import { PROFESSIONAL_FONTS } from '../../../data/fonts';
 import { Project, InteractiveButton } from '../../../types';
 import {
   MousePointerClick,
@@ -202,6 +203,22 @@ export const ButtonsTab: React.FC<ButtonsTabProps> = ({ project, onChange }) => 
                       <MousePointerClick size={16} aria-hidden="true" /><span>{label}</span>
                     </button>
                   ))}
+                </fieldset>
+
+                <fieldset className="col-span-full grid grid-cols-2 gap-3 rounded-xl border p-3 sm:grid-cols-3">
+                  <legend className="font-semibold">Tipografía y acabados independientes</legend>
+                  <label>Fuente<select className="block w-full border rounded p-2" value={btn.fontFamily||''} onChange={e=>updateButton(btn.id,{fontFamily:e.target.value})}>
+                    <option value="">Predeterminada</option>{PROFESSIONAL_FONTS.map(font=><option key={font.id} value={font.name}>{font.name}</option>)}
+                  </select></label>
+                  <label>Tamaño (px)<input type="number" min="8" max="60" className="block w-full border rounded p-2" value={btn.fontSize??''} onChange={e=>updateButton(btn.id,{fontSize:e.target.value?Math.max(8,Math.min(60,Number(e.target.value))):undefined})}/></label>
+                  <label>Alineación<select className="block w-full border rounded p-2" value={btn.textAlign||''} onChange={e=>updateButton(btn.id,{textAlign:e.target.value as typeof btn.textAlign})}>
+                    <option value="">Predeterminada</option><option value="left">Izquierda</option><option value="center">Centro</option><option value="right">Derecha</option>
+                  </select></label>
+                  <label>Acabado<select className="block w-full border rounded p-2" value={btn.finish||'default'} onChange={e=>updateButton(btn.id,{finish:e.target.value as typeof btn.finish})}>
+                    <option value="default">Estilo original</option><option value="silver">Metal plateado</option><option value="titanium">Titanio oscuro</option><option value="gold">Oro metálico</option><option value="premium-gradient">Degradado premium</option>
+                  </select></label>
+                  <label>Esquinas (px)<input type="number" min="0" max="60" className="block w-full border rounded p-2" value={btn.radius??''} onChange={e=>updateButton(btn.id,{radius:e.target.value?Math.max(0,Math.min(60,Number(e.target.value))):undefined})}/></label>
+                  <div className="flex items-end"><span className="profile-action" data-style={btn.style} style={{'--action-color':btn.bgColor||project.palette.primary,'--action-text':btn.color||'#fff',...actionButtonAppearance(btn)} as React.CSSProperties}>{btn.label}</span></div>
                 </fieldset>
 
                 {/* Custom Color */}
