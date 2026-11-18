@@ -1,4 +1,4 @@
-import { fieldStyle, profileSections, sectionSurface, modernButtonModels, typographyModels } from '../../utils/profilePresentation';
+import { actionButtonAppearance, fieldStyle, profileSections, sectionSurface, modernButtonModels, typographyModels } from '../../utils/profilePresentation';
 import React, { useState, useEffect } from 'react';
 import { Project, SectionConfig, SlateMember } from '../../types';
 import { DESIGN_FAMILIES } from '../../data/templates';
@@ -280,6 +280,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
                       style={{
                         '--action-color': btn.bgColor || palette.primary,
                         '--action-text': btn.color || '#fff',
+                        ...actionButtonAppearance(btn),
                       } as React.CSSProperties}
                     >
                       {btn.actionType === 'whatsapp' ? (
@@ -739,6 +740,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
                 style={{
                   '--action-color': btn.bgColor || palette.primary,
                         '--action-text': btn.color || '#fff',
+                        ...actionButtonAppearance(btn),
                       } as React.CSSProperties}
               >
                 {btn.actionType === 'whatsapp' ? (
