@@ -33,7 +33,19 @@ export function AdditionalSection({ section, surface, buttons, onButton, editori
   return (
     <section data-module={section.type} className="rounded-2xl border border-slate-200/60 p-6 sm:p-8 space-y-4"
       style={sectionSurface(section, surface, editorial)}>
-      <SectionHeading section={section} />
+      {section.type === 'custom_html' && section.data?.immersivePhoto ? (
+        <div className="relative isolate overflow-hidden rounded-xl bg-slate-950 text-white"
+          style={{minHeight:section.data.immersiveHeight==='half'?'50svh':section.data.immersiveHeight==='auto'?'min(70svh, 650px)':'100svh',display:'flex',alignItems:section.data.immersiveTextPosition==='top'?'flex-start':section.data.immersiveTextPosition==='center'?'center':'flex-end'}}>
+          <img src={section.data.immersivePhoto} alt={section.data.immersiveTitle || section.title || 'Fotografía'}
+            className="absolute inset-0 h-full w-full"
+            style={{objectFit:section.data.immersiveFit==='contain'?'contain':'cover',objectPosition:`${Math.min(100,Math.max(0,Number(section.data.immersiveX??50)))}% ${Math.min(100,Math.max(0,Number(section.data.immersiveY??50)))}%`}} />
+          <div className="absolute inset-0" style={{background:`linear-gradient(to top,rgba(0,0,0,${Math.min(.85,Math.max(0,Number(section.data.immersiveShade??45)/100))}),rgba(0,0,0,${Math.min(.65,Math.max(0,Number(section.data.immersiveShade??45)/200))}))`}}/>
+          <div className="relative z-10 w-full p-6 sm:p-12 space-y-4 break-words">
+            <h2 className="text-3xl sm:text-5xl font-bold leading-tight" style={{color:'#fff',...fieldStyle(section,'immersiveTitle')}}>{section.data.immersiveTitle || section.title}</h2>
+            {section.data.immersiveCaption && <p className="text-base sm:text-xl whitespace-pre-wrap" style={{color:'#fff',...fieldStyle(section,'immersiveCaption')}}>{section.data.immersiveCaption}</p>}
+          </div>
+        </div>
+      ) : <SectionHeading section={section} />}
       {(section.data?.text || section.data?.html) && (
         <p className="whitespace-pre-line leading-relaxed" style={fieldStyle(section, 'text')}>{section.data.text || section.data.html}</p>
       )}
