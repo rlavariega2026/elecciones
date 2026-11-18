@@ -226,6 +226,11 @@ export interface InteractiveButton {
   enabled: boolean;
   color?: string;
   bgColor?: string;
+  fontFamily?: string;
+  fontSize?: number;
+  textAlign?: 'left' | 'center' | 'right';
+  finish?: 'default' | 'silver' | 'titanium' | 'gold' | 'premium-gradient';
+  radius?: number;
 }
 
 export interface ProjectMetadata {
