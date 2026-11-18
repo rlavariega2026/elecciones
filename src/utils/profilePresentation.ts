@@ -10,7 +10,8 @@ export function actionButtonAppearance(button: InteractiveButton): CSSProperties
     'premium-gradient': 'linear-gradient(110deg,#2563eb,#7c3aed 55%,#db2777)',
   };
   return {
-    fontFamily: button.fontFamily ? `"${button.fontFamily}",sans-serif` : undefined,
+    fontFamily: button.fontFamily === 'Futura' ? "'Futura','Futura PT','Century Gothic','Montserrat',sans-serif" : button.fontFamily ? `"${button.fontFamily}",sans-serif` : undefined,
+    fontWeight: button.fontWeight,
     fontSize: button.fontSize ? `${button.fontSize}px` : undefined,
     textAlign: button.textAlign,
     borderRadius: button.radius === undefined ? undefined : `${button.radius}px`,
@@ -33,7 +34,8 @@ export const socialNetworks = [
 export function fieldStyle(section: SectionConfig, field: string, item?: { textStyles?: SectionConfig['data'] }): CSSProperties {
   const style = { ...section.data?.textStyles?.[field], ...item?.textStyles?.[field] };
   return {
-    fontFamily: style.font ? `"${style.font}", sans-serif` : undefined,
+    fontFamily: style.font === 'Futura' ? "'Futura','Futura PT','Century Gothic','Montserrat',sans-serif" : style.font ? `"${style.font}", sans-serif` : undefined,
+    fontWeight: style.weight || undefined,
     fontSize: style.size ? `${style.size}px` : undefined,
     color: style.color || undefined,
     textAlign: style.align || undefined,
