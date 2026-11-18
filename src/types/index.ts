@@ -222,6 +222,7 @@ export interface InteractiveButton {
     | 'external_url'
     | 'vcard';
   actionValue: string;
+  whatsappMessage?: string;
   icon: string;
   enabled: boolean;
   color?: string;
