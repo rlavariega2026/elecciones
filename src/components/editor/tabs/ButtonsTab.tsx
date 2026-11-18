@@ -254,6 +254,16 @@ export const ButtonsTab: React.FC<ButtonsTabProps> = ({ project, onChange }) => 
                   className="w-full p-2 rounded-lg border border-slate-200 font-mono text-xs"
                 />
               </div>
+              {btn.actionType === 'whatsapp' && (
+                <label className="mt-3 block font-semibold text-slate-700">
+                  Mensaje personalizado de WhatsApp
+                  <textarea rows={3} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-2 font-normal"
+                    placeholder={`Hola ${project.candidate.fullName}, vi tu tarjeta digital y deseo ponerme en contacto.`}
+                    value={btn.whatsappMessage ?? ''}
+                    onChange={e => updateButton(btn.id, { whatsappMessage: e.target.value })} />
+                  <span className="mt-1 block text-[11px] font-normal text-slate-500">Este mensaje aparecerá escrito al abrir WhatsApp. Si se deja vacío, se utiliza el mensaje predeterminado.</span>
+                </label>
+              )}
             </div>
           ))}
         </div>
