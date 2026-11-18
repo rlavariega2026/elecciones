@@ -117,6 +117,13 @@ export function SectionContentFields({ section, bio, onChange, onPhotoRead, onAd
         <label className="block">Ajuste de imagen<select className="block w-full border rounded-lg p-2" value={data.immersiveFit||'smart'} onChange={e=>onChange({...data,immersiveFit:e.target.value})}>
           <option value="cover">Cubrir área</option><option value="contain">Mostrar imagen completa (fondo oscuro)</option><option value="smart">Imagen completa + fondo fotográfico desenfocado</option><option value="natural">Imagen completa sin fondo, altura natural</option>
         </select></label>
+        <label className="block">Color de fondo de fotografía
+          <div className="flex items-center gap-2">
+            <input type="color" aria-label="Elegir color de fondo" value={data.immersiveBackgroundColor||'#151a23'} onChange={e=>onChange({...data,immersiveBackgroundColor:e.target.value})} />
+            <input type="text" aria-label="Código de color de fondo" className="w-32 rounded-lg border p-2" value={data.immersiveBackgroundColor||'#151a23'} onChange={e=>onChange({...data,immersiveBackgroundColor:e.target.value})} placeholder="#151a23" />
+          </div>
+          <span className="block text-xs text-slate-500">Se aplica al modo natural, a la zona del texto y al fondo de la fotografía cuando corresponda.</span>
+        </label>
         <label className="block">Posición horizontal ({data.immersiveX??50}%)<input type="range" min="0" max="100" className="w-full" value={data.immersiveX??50} onChange={e=>onChange({...data,immersiveX:Number(e.target.value)})}/></label>
         <label className="block">Posición vertical ({data.immersiveY??50}%)<input type="range" min="0" max="100" className="w-full" value={data.immersiveY??50} onChange={e=>onChange({...data,immersiveY:Number(e.target.value)})}/></label>
         <label className="block">Oscurecimiento ({data.immersiveShade??45}%)<input type="range" min="0" max="85" className="w-full" value={data.immersiveShade??45} onChange={e=>onChange({...data,immersiveShade:Number(e.target.value)})}/></label>
