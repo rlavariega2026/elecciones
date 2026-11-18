@@ -114,8 +114,8 @@ export function SectionContentFields({ section, bio, onChange, onPhotoRead, onAd
         <label className="block">Altura de la imagen<select className="block w-full border rounded-lg p-2" value={data.immersiveHeight||'screen'} onChange={e=>onChange({...data,immersiveHeight:e.target.value})}>
           <option value="screen">Pantalla completa</option><option value="half">Media pantalla</option><option value="auto">Automática</option>
         </select></label>
-        <label className="block">Ajuste de imagen<select className="block w-full border rounded-lg p-2" value={data.immersiveFit||'cover'} onChange={e=>onChange({...data,immersiveFit:e.target.value})}>
-          <option value="cover">Cubrir área</option><option value="contain">Mostrar imagen completa</option>
+        <label className="block">Ajuste de imagen<select className="block w-full border rounded-lg p-2" value={data.immersiveFit||'smart'} onChange={e=>onChange({...data,immersiveFit:e.target.value})}>
+          <option value="cover">Cubrir área</option><option value="contain">Mostrar imagen completa (fondo oscuro)</option><option value="smart">Imagen completa + fondo fotográfico desenfocado</option><option value="natural">Imagen completa sin fondo, altura natural</option>
         </select></label>
         <label className="block">Posición horizontal ({data.immersiveX??50}%)<input type="range" min="0" max="100" className="w-full" value={data.immersiveX??50} onChange={e=>onChange({...data,immersiveX:Number(e.target.value)})}/></label>
         <label className="block">Posición vertical ({data.immersiveY??50}%)<input type="range" min="0" max="100" className="w-full" value={data.immersiveY??50} onChange={e=>onChange({...data,immersiveY:Number(e.target.value)})}/></label>
