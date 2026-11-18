@@ -34,16 +34,17 @@ export function AdditionalSection({ section, surface, buttons, onButton, editori
     <section data-module={section.type} className={section.type === "custom_html" && section.data?.immersivePhoto ? "overflow-hidden space-y-4" : "rounded-2xl border border-slate-200/60 p-6 sm:p-8 space-y-4"}
       style={sectionSurface(section, surface, editorial)}>
       {section.type === 'custom_html' && section.data?.immersivePhoto ? (
-        <div className="relative isolate overflow-hidden rounded-xl bg-slate-950 text-white"
-          style={{minHeight:section.data.immersiveHeight==='half'?'50svh':section.data.immersiveHeight==='auto'?'min(70svh, 650px)':'100svh',display:'flex',alignItems:section.data.immersiveTextPosition==='top'?'flex-start':section.data.immersiveTextPosition==='center'?'center':'flex-end'}}>
+        <div className="relative isolate overflow-hidden rounded-xl text-white"
+          style={{minHeight:section.data.immersiveFit==='natural'?'auto':section.data.immersiveHeight==='half'?'50svh':section.data.immersiveHeight==='auto'?'min(70svh, 650px)':'100svh',display:'flex',alignItems:section.data.immersiveTextPosition==='top'?'flex-start':section.data.immersiveTextPosition==='center'?'center':'flex-end',backgroundColor:section.data.immersiveFit==='natural'?'transparent':'#151a23'}}>
+          {section.data.immersiveFit==='smart' && <img src={section.data.immersivePhoto} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full scale-110 blur-2xl" style={{objectFit:'cover'}} />}
           <img src={section.data.immersivePhoto} alt={section.data.immersiveTitle || section.title || 'Fotografía'}
-            className="absolute inset-0 h-full w-full"
-            style={{objectFit:section.data.immersiveFit==='contain'?'contain':'cover',objectPosition:`${Math.min(100,Math.max(0,Number(section.data.immersiveX??50)))}% ${Math.min(100,Math.max(0,Number(section.data.immersiveY??50)))}%`}} />
-          <div className="absolute inset-0" style={{background:`linear-gradient(to top,rgba(0,0,0,${Math.min(.85,Math.max(0,Number(section.data.immersiveShade??45)/100))}),rgba(0,0,0,${Math.min(.65,Math.max(0,Number(section.data.immersiveShade??45)/200))}))`}}/>
-          <div className="relative z-10 w-full p-6 sm:p-12 space-y-4 break-words">
+            className={section.data.immersiveFit==='natural'?'relative block w-full h-auto':'absolute inset-0 h-full w-full'}
+            style={{objectFit:section.data.immersiveFit==='cover'?'cover':'contain',objectPosition:`${Math.min(100,Math.max(0,Number(section.data.immersiveX??50)))}% ${Math.min(100,Math.max(0,Number(section.data.immersiveY??50)))}%`}} />
+          {section.data.immersiveFit!=='natural' && <div className="absolute inset-0 pointer-events-none" style={{background:`linear-gradient(to top,rgba(0,0,0,${Math.min(.85,Math.max(0,Number(section.data.immersiveShade??45)/100))}),transparent 70%)`}}/>}
+          {(section.data.immersiveTitle || section.data.immersiveCaption || section.title) && <div className={section.data.immersiveFit==='natural'?'relative w-full p-5 sm:p-8 bg-slate-950':'relative z-10 w-full p-6 sm:p-12 space-y-4 break-words'}>
             <h2 className="text-3xl sm:text-5xl font-bold leading-tight" style={{color:'#fff',...fieldStyle(section,'immersiveTitle')}}>{section.data.immersiveTitle || section.title}</h2>
             {section.data.immersiveCaption && <p className="text-base sm:text-xl whitespace-pre-wrap" style={{color:'#fff',...fieldStyle(section,'immersiveCaption')}}>{section.data.immersiveCaption}</p>}
-          </div>
+          </div>}
         </div>
       ) : <SectionHeading section={section} />}
       {(section.data?.text || section.data?.html) && (
