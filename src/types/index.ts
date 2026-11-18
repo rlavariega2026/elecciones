@@ -228,6 +228,7 @@ export interface InteractiveButton {
   color?: string;
   bgColor?: string;
   fontFamily?: string;
+  fontWeight?: number;
   fontSize?: number;
   textAlign?: 'left' | 'center' | 'right';
   finish?: 'default' | 'silver' | 'titanium' | 'gold' | 'premium-gradient';
