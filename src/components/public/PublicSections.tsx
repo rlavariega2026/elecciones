@@ -35,7 +35,7 @@ export function AdditionalSection({ section, surface, buttons, onButton, editori
       style={sectionSurface(section, surface, editorial)}>
       {section.type === 'custom_html' && section.data?.immersivePhoto ? (
         <div className="relative isolate overflow-hidden rounded-xl text-white"
-          style={{minHeight:section.data.immersiveFit==='natural'?'auto':section.data.immersiveHeight==='half'?'50svh':section.data.immersiveHeight==='auto'?'min(70svh, 650px)':'100svh',display:'flex',alignItems:section.data.immersiveTextPosition==='top'?'flex-start':section.data.immersiveTextPosition==='center'?'center':'flex-end',backgroundColor:section.data.immersiveFit==='natural'?'transparent':'#151a23'}}>
+          style={{minHeight:section.data.immersiveFit==='natural'?'auto':section.data.immersiveHeight==='half'?'50svh':section.data.immersiveHeight==='auto'?'min(70svh, 650px)':'100svh',display:'flex',flexDirection:section.data.immersiveFit==='natural'?'column':'row',alignItems:section.data.immersiveTextPosition==='top'?'flex-start':section.data.immersiveTextPosition==='center'?'center':'flex-end',backgroundColor:section.data.immersiveFit==='natural'?'transparent':'#151a23'}}>
           {section.data.immersiveFit==='smart' && <img src={section.data.immersivePhoto} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full scale-110 blur-2xl" style={{objectFit:'cover'}} />}
           <img src={section.data.immersivePhoto} alt={section.data.immersiveTitle || section.title || 'Fotografía'}
             className={section.data.immersiveFit==='natural'?'relative block w-full h-auto':'absolute inset-0 h-full w-full'}
