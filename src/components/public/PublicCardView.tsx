@@ -96,7 +96,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
 
     if (btn.actionType === 'whatsapp') {
       const cleanNum = btn.actionValue.replace(/[^0-9]/g, '');
-      const msg = encodeURIComponent(`Hola ${candidate.fullName}, vi tu tarjeta digital de LAV Política Digital y deseo ponerme en contacto.`);
+      const msg = encodeURIComponent(btn.whatsappMessage?.trim() || `Hola ${candidate.fullName}, vi tu tarjeta digital de LAV Política Digital y deseo ponerme en contacto.`);
       window.open(`https://wa.me/${cleanNum}?text=${msg}`, '_blank');
     } else if (btn.actionType === 'call') {
       window.location.href = `tel:${btn.actionValue}`;
