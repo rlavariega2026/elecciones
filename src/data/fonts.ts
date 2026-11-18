@@ -10,6 +10,16 @@ export interface FontOption {
 
 export const PROFESSIONAL_FONTS: FontOption[] = [
   {
+    id: 'futura',
+    name: 'Futura',
+    family: "'Futura', 'Futura PT', 'Century Gothic', 'Montserrat', sans-serif",
+    cssClass: 'font-futura',
+    category: 'sans-geometric',
+    weights: ['300', '400', '500', '600', '700', '800', '900'],
+    recommendedUse: 'Familia Futura: Light, Book, Medium, Demi, Bold, Heavy y Extra Bold; requiere fuente licenciada instalada para fidelidad exacta',
+  },
+
+  {
     id: 'montserrat',
     name: 'Montserrat',
     family: "'Montserrat', sans-serif",
