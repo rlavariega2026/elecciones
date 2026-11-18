@@ -1,5 +1,27 @@
 import type { CSSProperties } from 'react';
-import type { Project, SectionConfig } from '../types';
+import type { Project, SectionConfig, InteractiveButton } from '../types';
+
+
+export function actionButtonAppearance(button: InteractiveButton): CSSProperties {
+  const gradients: Record<string, string> = {
+    silver: 'linear-gradient(135deg,#f8fafc 0%,#8c9baa 42%,#e2e8f0 72%,#64748b 100%)',
+    titanium: 'linear-gradient(135deg,#64748b 0%,#111827 52%,#475569 100%)',
+    gold: 'linear-gradient(135deg,#fff0a6 0%,#a36e24 45%,#f5d37a 75%,#8c5c1e 100%)',
+    'premium-gradient': 'linear-gradient(110deg,#2563eb,#7c3aed 55%,#db2777)',
+  };
+  return {
+    fontFamily: button.fontFamily ? `"${button.fontFamily}",sans-serif` : undefined,
+    fontSize: button.fontSize ? `${button.fontSize}px` : undefined,
+    textAlign: button.textAlign,
+    borderRadius: button.radius === undefined ? undefined : `${button.radius}px`,
+    ...(button.finish && button.finish !== 'default' ? {
+      background: gradients[button.finish],
+      color: button.color || (button.finish === 'silver' || button.finish === 'gold' ? '#172033' : '#ffffff'),
+      border: '1px solid rgba(255,255,255,.4)',
+      boxShadow: 'inset 0 1px 1px rgba(255,255,255,.55),0 6px 18px rgba(0,0,0,.18)',
+    } : {}),
+  };
+}
 
 export const socialNetworks = [
   ['x', 'X', 'simple-icons/x'], ['facebook', 'Facebook', 'mdi/facebook'],
