@@ -36,7 +36,7 @@ export function AdditionalSection({ section, surface, buttons, onButton, editori
       style={sectionSurface(section, surface, editorial)}>
       {section.type === 'custom_html' && section.data?.immersivePhoto ? (
         <div className="relative isolate overflow-hidden rounded-xl text-white"
-          style={{minHeight:section.data.immersiveFit==='natural'?'auto':section.data.immersiveHeight==='half'?'50svh':section.data.immersiveHeight==='auto'?'min(70svh, 650px)':'100svh',display:'flex',flexDirection:section.data.immersiveFit==='natural'?'column':'row',alignItems:section.data.immersiveTextPosition==='top'?'flex-start':section.data.immersiveTextPosition==='center'?'center':'flex-end',backgroundColor:section.data.immersiveFit==='natural'?'transparent':'#151a23'}}>
+          style={{minHeight:section.data.immersiveFit==='natural'?'auto':section.data.immersiveHeight==='half'?'50svh':section.data.immersiveHeight==='auto'?'min(70svh, 650px)':'100svh',display:'flex',flexDirection:section.data.immersiveFit==='natural'?'column':'row',alignItems:section.data.immersiveTextPosition==='top'?'flex-start':section.data.immersiveTextPosition==='center'?'center':'flex-end',backgroundColor:/^#[0-9a-fA-F]{6}$/.test(section.data.immersiveBackgroundColor||'')?section.data.immersiveBackgroundColor:'#151a23'}}>
           {section.data.immersiveFit==='smart' && <img src={section.data.immersivePhoto} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full scale-110 blur-2xl" style={{objectFit:'cover'}} />}
           <img src={section.data.immersivePhoto} alt={section.data.immersiveTitle || section.title || 'Fotografía'}
             className={section.data.immersiveFit==='natural'?'relative block w-full h-auto':'absolute inset-0 h-full w-full'}
@@ -45,7 +45,7 @@ export function AdditionalSection({ section, surface, buttons, onButton, editori
             className="absolute inset-0 z-10 cursor-zoom-in focus-visible:outline focus-visible:outline-4 focus-visible:outline-white"
             onClick={() => setExpandedPhoto(true)} />
           {section.data.immersiveFit!=='natural' && <div className="absolute inset-0 pointer-events-none" style={{background:`linear-gradient(to top,rgba(0,0,0,${Math.min(.85,Math.max(0,Number(section.data.immersiveShade??45)/100))}),transparent 70%)`}}/>}
-          {(section.data.immersiveTitle || section.data.immersiveCaption || section.title) && <div className={section.data.immersiveFit==='natural'?'relative w-full p-5 sm:p-8 bg-slate-950':'relative z-10 w-full p-6 sm:p-12 space-y-4 break-words'}>
+          {(section.data.immersiveTitle || section.data.immersiveCaption || section.title) && <div className={section.data.immersiveFit==='natural'?'relative w-full p-5 sm:p-8':'relative z-10 w-full p-6 sm:p-12 space-y-4 break-words'} style={section.data.immersiveFit==='natural'?{backgroundColor:/^#[0-9a-fA-F]{6}$/.test(section.data.immersiveBackgroundColor||'')?section.data.immersiveBackgroundColor:'#151a23'}:undefined}>
             <h2 className="text-3xl sm:text-5xl font-bold leading-tight" style={{color:'#fff',...fieldStyle(section,'immersiveTitle')}}>{section.data.immersiveTitle || section.title}</h2>
             {section.data.immersiveCaption && <p className="text-base sm:text-xl whitespace-pre-wrap" style={{color:'#fff',...fieldStyle(section,'immersiveCaption')}}>{section.data.immersiveCaption}</p>}
           </div>}
