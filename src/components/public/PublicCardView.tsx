@@ -314,7 +314,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
             </p>
 
             {candidate.quote && (
-              <blockquote className="mt-4 p-4 rounded-xl bg-slate-50 border-l-4 border-slate-900 text-xs italic text-slate-800">
+              <blockquote className="mt-4 p-4 rounded-xl bg-slate-50 border-l-4 border-slate-900 text-xs italic text-slate-800" style={fieldStyle(section, 'quote')}>
                 "{candidate.quote}"
               </blockquote>
             )}
