@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { Project, CandidateInfo } from '../../../types';
 import { User, Upload } from 'lucide-react';
 import { PROFESSIONAL_FONTS } from '../../../data/fonts';
+import { ButtonsTab } from './ButtonsTab';
 
 interface CandidateTabProps {
   project: Project;
@@ -241,6 +242,21 @@ export const CandidateTab: React.FC<CandidateTabProps> = ({ project, onChange })
             {format('bio','quote','cita')}
           </div>
         </div>
+      </div>
+      <div className="rounded-xl border border-violet-200 p-3 bg-violet-50/30">
+        <h4 className="font-bold text-sm mb-2">Textos de portada: cargo y ubicación</h4>
+        <label className="block mb-2">Cargo / título
+          <input className="block w-full border rounded-lg p-2" value={project.role || ''} onChange={e=>onChange({role:e.target.value})}/>
+        </label>
+        {format('hero','role','cargo')}
+        <label className="block mt-3 mb-2">Ubicación
+          <input className="block w-full border rounded-lg p-2" value={candidate.municipality || ''} onChange={e=>handleCandidateChange('municipality',e.target.value)}/>
+        </label>
+        {format('hero','location','ubicación')}
+      </div>
+      <div className="rounded-xl border border-violet-200 p-3 bg-violet-50/30">
+        <h4 className="font-bold text-sm mb-2">Botones de la portada: texto, color y acabados</h4>
+        <ButtonsTab project={project} onChange={onChange}/>
       </div>
     </div>
   );
