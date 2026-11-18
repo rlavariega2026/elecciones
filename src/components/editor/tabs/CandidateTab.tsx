@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { Project, CandidateInfo } from '../../../types';
 import { User, Upload } from 'lucide-react';
+import { PROFESSIONAL_FONTS } from '../../../data/fonts';
 
 interface CandidateTabProps {
   project: Project;
@@ -18,6 +19,30 @@ export const CandidateTab: React.FC<CandidateTabProps> = ({ project, onChange })
         [key]: val,
       },
     });
+  };
+
+  const updateTextStyle = (type: string, field: string, property: string, value: string | number | undefined) => {
+    onChange({ sections: (project.sections || []).map(section => section.type !== type ? section : ({
+      ...section, data: { ...section.data, textStyles: { ...section.data?.textStyles,
+        [field]: { ...section.data?.textStyles?.[field], [property]: value } } }
+    })) });
+  };
+  const format = (type: string, field: string, label: string) => {
+    const section = (project.sections || []).find(section => section.type === type);
+    const style = section?.data?.textStyles?.[field] || {};
+    return <details className="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-2">
+      <summary className="cursor-pointer font-semibold text-slate-700">Formato de {label}</summary>
+      <div className="mt-2 grid grid-cols-2 gap-2">
+        <label>Fuente<select className="block w-full border rounded p-1" value={style.font || ''} onChange={e=>updateTextStyle(type,field,'font',e.target.value||undefined)}>
+          <option value="">Predeterminada</option>{PROFESSIONAL_FONTS.map(font=><option key={font.id} value={font.name}>{font.name}</option>)}
+        </select></label>
+        <label>Tamaño (px)<input type="number" min="8" max="160" className="block w-full border rounded p-1" value={style.size??''} onChange={e=>updateTextStyle(type,field,'size',e.target.value?Math.max(8,Math.min(160,Number(e.target.value))):undefined)}/></label>
+        <label>Color<input type="color" className="block w-full" value={style.color||'#0f172a'} onChange={e=>updateTextStyle(type,field,'color',e.target.value)}/></label>
+        <label>Alineación<select className="block w-full border rounded p-1" value={style.align||''} onChange={e=>updateTextStyle(type,field,'align',e.target.value||undefined)}>
+          <option value="">Predeterminada</option><option value="left">Izquierda</option><option value="center">Centro</option><option value="right">Derecha</option><option value="justify">Justificada</option>
+        </select></label>
+      </div>
+    </details>;
   };
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,6 +91,7 @@ export const CandidateTab: React.FC<CandidateTabProps> = ({ project, onChange })
               placeholder="Ej. Jorge Meade González"
               className="w-full p-2.5 rounded-lg border border-slate-200 text-slate-900 font-bold focus:ring-2 focus:ring-slate-900"
             />
+            {format('hero','name','nombre')}
           </div>
 
           <div>
@@ -79,6 +105,7 @@ export const CandidateTab: React.FC<CandidateTabProps> = ({ project, onChange })
               placeholder="Ej. Jorge Meade"
               className="w-full p-2.5 rounded-lg border border-slate-200 text-slate-900 font-bold focus:ring-2 focus:ring-slate-900"
             />
+            {format('hero','name','nombre corto')}
           </div>
         </div>
 
@@ -95,6 +122,7 @@ export const CandidateTab: React.FC<CandidateTabProps> = ({ project, onChange })
               placeholder="Ej. Experiencia, Firmeza y Resultados para Morelos"
               className="w-full p-2.5 rounded-lg border border-slate-200 text-slate-900 font-medium focus:ring-2 focus:ring-slate-900"
             />
+            {format('hero','slogan','eslogan')}
           </div>
 
           <div>
@@ -108,6 +136,7 @@ export const CandidateTab: React.FC<CandidateTabProps> = ({ project, onChange })
               placeholder="Ej. Candidato a Diputado Local por el Primer Distrito"
               className="w-full p-2.5 rounded-lg border border-slate-200 text-slate-900 font-medium focus:ring-2 focus:ring-slate-900"
             />
+            {format('hero','tagline','lema secundario')}
           </div>
         </div>
 
@@ -195,6 +224,7 @@ export const CandidateTab: React.FC<CandidateTabProps> = ({ project, onChange })
               placeholder="Escribe la trayectoria y vocación de servicio del candidato..."
               className="w-full p-3 rounded-lg border border-slate-200 text-slate-900 font-medium focus:ring-2 focus:ring-slate-900"
             />
+            {format('bio','bioText','biografía')}
           </div>
 
           <div>
@@ -208,6 +238,7 @@ export const CandidateTab: React.FC<CandidateTabProps> = ({ project, onChange })
               placeholder="Ej. Morelos necesita leyes con sentido humano y presupuestos que realmente lleguen a las colonias."
               className="w-full p-2.5 rounded-lg border border-slate-200 text-slate-900 italic focus:ring-2 focus:ring-slate-900"
             />
+            {format('bio','quote','cita')}
           </div>
         </div>
       </div>
